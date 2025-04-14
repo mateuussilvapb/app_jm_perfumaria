@@ -25,7 +25,6 @@ public class ProdutoSaidaEstoque extends CreateAuditableEntity {
     @Digits(integer = 10, fraction = 2, message = "O preço por unidade deve ter no máximo 10 dígitos inteiros e 2 casas decimais")
     private BigDecimal precoUnitario;
 
-    @Column(name = "preco_unitario", nullable = false)
     @NotNull(message = "A quantidade é obrigatória")
     @Min(value = 0, message = "A quantidade não pode ser negativa")
     @Max(value = 9999, message = "A quantidade não pode ser maior que 9999")
