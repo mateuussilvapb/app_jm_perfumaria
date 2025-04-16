@@ -35,6 +35,10 @@ public class ProdutoEntradaEstoque extends CreateAuditableEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @DecimalMin(value = "0.00", message = "O desconto não pode ser negativo")
+    @DecimalMax(value = "100.00", message = "O desconto não pode ser maior que 100%")
+    private BigDecimal desconto;
+
     //Relacionamentos
     @NotNull(message = "O produto é obrigatório")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
