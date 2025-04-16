@@ -12,6 +12,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -53,6 +54,9 @@ public class Produto extends CreateAuditableEntity implements Referable<String> 
     @Enumerated(EnumType.STRING)
     private Situacao situacao;
 
+    @Column(name = "codigo", nullable = false, unique = true, updatable = false)
+    private Long codigo;
+
     //Relacionamentos
     @NotNull(message = "A marca é obrigatória")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
@@ -74,5 +78,14 @@ public class Produto extends CreateAuditableEntity implements Referable<String> 
     @Override
     public String getIdentificacao() {
         return getIdString();
+    }
+
+    public boolean matchSearchTerm(String searchTerm) {
+        if (StringUtils.isBlank(searchTerm)) {
+            return false;
+        }
+        return getNome().toLowerCase().contains(searchTerm.toLowerCase())
+                || (getDescricao() != null && getDescricao().toLowerCase().contains(searchTerm.toLowerCase()))
+                || (getCodigo() != null && getCodigo() == (Long.parseLong(searchTerm)));
     }
 }

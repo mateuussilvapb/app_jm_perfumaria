@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -31,8 +32,20 @@ public class SaidaEstoque extends CreateAuditableEntity {
     @Size(max = 1000)
     private String descricao;
 
+    @Column(name = "codigo", nullable = false, unique = true, updatable = false)
+    private Long codigo;
+
     //Relacionamentos
     @OneToMany(mappedBy = "saidaEstoque", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("created_at ASC")
     private List<ProdutoSaidaEstoque> saidasProdutos;
+
+    //Demais métodos
+    public boolean matchSearchTerm(String searchTerm) {
+        if (StringUtils.isBlank(searchTerm)) {
+            return false;
+        }
+        return (getDescricao() != null && getDescricao().toLowerCase().contains(searchTerm.toLowerCase()))
+                || (getCodigo() != null && getCodigo() == (Long.parseLong(searchTerm)));
+    }
 }
