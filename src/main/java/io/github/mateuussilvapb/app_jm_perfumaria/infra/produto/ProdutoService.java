@@ -37,7 +37,7 @@ public class ProdutoService {
     }
 
     @Transactional
-    public List<Produto> findAllProdutosAtivosByTermAndStatus(String searchTerm, Status status) {
+    public List<Produto> findAllProdutosByTermAndStatus(String searchTerm, Status status) {
         List<Produto> produtos;
 
         if (status == Status.ATIVO) {
