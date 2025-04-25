@@ -27,23 +27,23 @@ public class ProdutoService {
     private final ProdutoToProdutoDTO atualizarProdutoMapper;
 
     @Transactional
-    public List<Produto> findAllProdutosAtivos() {
+    public List<Produto> findAllAtivos() {
         return this.produtoRepository.findAllProdutosByStatus(Status.ATIVO);
     }
 
     @Transactional
-    public List<Produto> findAllProdutosInativos() {
+    public List<Produto> findAllInativos() {
         return this.produtoRepository.findAllProdutosByStatus(Status.INATIVO);
     }
 
     @Transactional
-    public List<Produto> findAllProdutosByTermAndStatus(String searchTerm, Status status) {
+    public List<Produto> findAllByTermAndStatus(String searchTerm, Status status) {
         List<Produto> produtos;
 
         if (status == Status.ATIVO) {
-            produtos = this.findAllProdutosAtivos();
+            produtos = this.findAllAtivos();
         } else {
-            produtos = this.findAllProdutosInativos();
+            produtos = this.findAllInativos();
         }
 
         if (StringUtils.isNotBlank(searchTerm)) {
@@ -56,43 +56,44 @@ public class ProdutoService {
     }
 
     @Transactional
-    public List<ProdutoAutocompleteDTO> findAllProdutoAutocompleteByTermAndStatus(String searchTerm, Status status) {
+    public List<ProdutoAutocompleteDTO> findAllToAutocompleteByTermAndStatus(String searchTerm,
+                                                                             Status status) {
         return this.produtoRepository.findAllProdutosByStatusAutocompleteDTO(searchTerm, status);
     }
 
     @Transactional
-    public List<Produto> findAllProdutoBySituacaoAndStatus(Situacao situacao, Status status) {
+    public List<Produto> findAllBySituacaoAndStatus(Situacao situacao, Status status) {
         return this.produtoRepository.findAllProdutosBySituacaoAndStatus(situacao, status);
     }
 
     @Transactional
-    public Produto findProdutoById(Long id) {
+    public Produto findById(Long id) {
         return this.produtoRepository.findById(id).orElseThrow(() -> new ProdutoNotFoundException(id));
     }
 
     @Transactional
-    public Page<Produto> findProdutoByFilters(ProdutoFiltersDTO filtros, Pageable pageable) {
+    public Page<Produto> findByFilters(ProdutoFiltersDTO filtros, Pageable pageable) {
         return produtoRepository
                 .findAll(ProdutoSpecification.filtrar(filtros), pageable);
     }
 
     @Transactional
-    public void deleteProdutoById(Long id) {
-        var produto = this.findProdutoById(id);
+    public void deleteById(Long id) {
+        var produto = this.findById(id);
         produto.setStatus(Status.INATIVO);
         produto.setSituacao(Situacao.CADASTRO_FINALIZADO);
-        this.updateProduto(id, atualizarProdutoMapper.toDto(produto));
+        this.update(id, atualizarProdutoMapper.toDto(produto));
     }
 
     @Transactional
-    public Produto updateProduto(Long id, CreateUpdateProdutoDTO updatedProduto) {
-        var produto = this.findProdutoById(id);
+    public Produto update(Long id, CreateUpdateProdutoDTO updatedProduto) {
+        var produto = this.findById(id);
         //TODO: Necessário implementar service de Categoria e Marca para validação de ids
         return null;
     }
 
     @Transactional
-    public Produto createProduto(CreateUpdateProdutoDTO createdProduto) {
+    public Produto create(CreateUpdateProdutoDTO createdProduto) {
         //TODO: Necessário implementar service de Categoria e Marca para validação de ids
         return null;
     }
