@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CategoriaQueryService {
 
-    ICategoriaRepository categoriaRepository;
+    private final ICategoriaRepository categoriaRepository;
 
     public List<Categoria> findAllAtivos() {
         return this.categoriaRepository.findAllByStatus(Status.ATIVO);

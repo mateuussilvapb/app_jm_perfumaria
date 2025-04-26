@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class MarcaQueryService {
 
 
-    IMarcaRepository marcaRepository;
+    private final IMarcaRepository marcaRepository;
 
     public List<Marca> findAllAtivos() {
         return this.marcaRepository.findAllByStatus(Status.ATIVO);
