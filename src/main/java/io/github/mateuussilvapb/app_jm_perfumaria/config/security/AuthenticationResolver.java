@@ -1,6 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.config.security;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.usuario.Usuario;
+
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.usuario.Usuario;
 
 import java.util.Optional;
 

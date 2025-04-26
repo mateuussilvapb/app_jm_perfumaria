@@ -1,7 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.config.security;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.usuario.PerfilUsuario;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.usuario.Usuario;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.usuario.PerfilUsuario;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.usuario.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;

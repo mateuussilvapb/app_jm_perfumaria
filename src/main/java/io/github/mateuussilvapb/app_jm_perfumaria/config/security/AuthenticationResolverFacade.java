@@ -1,7 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.config.security;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.usuario.PerfilUsuario;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.usuario.Usuario;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.usuario.PerfilUsuario;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.usuario.Usuario;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;

@@ -1,7 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.config.persistence;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.config.security.AuthenticationResolverFacade;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.usuario.Usuario;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.usuario.Usuario;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
