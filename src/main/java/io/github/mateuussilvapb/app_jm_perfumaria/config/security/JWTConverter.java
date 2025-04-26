@@ -7,20 +7,37 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class JWTConverter implements Converter<Jwt, AbstractAuthenticationToken> {
-    private static final String CLIENT_ID = "app_segundo";
+    private static final String CLIENT_ID = "app_jm_perfumaria"; // Use o mesmo ID do client no Keycloak
 
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
-        Map<String, Collection<String>> resourceAccess = jwt.getClaim("resource_access");
-        if (resourceAccess == null) return null;
+        Collection<SimpleGrantedAuthority> authorities = extractAuthorities(jwt);
+        return new JwtAuthenticationToken(jwt, authorities);
+    }
 
-        Map<String, Collection<String>> client = (Map<String, Collection<String>>) resourceAccess.get(CLIENT_ID);
-        if (client == null || client.get("roles") == null) return null;
+    @SuppressWarnings("unchecked")
+    private Collection<SimpleGrantedAuthority> extractAuthorities(Jwt jwt) {
+        try {
+            Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+            if (resourceAccess == null) return List.of();
 
-        var grants = client.get("roles").stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
-        return new JwtAuthenticationToken(jwt, grants);
+            Map<String, Object> clientAccess = (Map<String, Object>) resourceAccess.get(CLIENT_ID);
+            if (clientAccess == null) return List.of();
+
+            Collection<String> roles = (Collection<String>) clientAccess.get("roles");
+            if (roles == null) return List.of();
+
+            return roles.stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            // Log o erro
+            return List.of();
+        }
     }
 }
