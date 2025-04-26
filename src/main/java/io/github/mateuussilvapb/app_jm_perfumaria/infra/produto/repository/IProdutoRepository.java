@@ -1,6 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.repository;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.ProdutoAutocompleteDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
@@ -16,21 +16,22 @@ import java.util.List;
 public interface IProdutoRepository extends JpaRepository<Produto, Long>, JpaSpecificationExecutor<Produto> {
 
     @Query("SELECT p FROM Produto p WHERE p.status = :status")
-    List<Produto> findAllProdutosByStatus(@Param("status") Status status);
+    List<Produto> findAllByStatus(@Param("status") Status status);
 
     @Query("""
-                        SELECT new io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.ProdutoAutocompleteDTO(p.id, p.nome)
+                        SELECT new io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO(p.id, p.nome)
                         FROM Produto p
                         WHERE p.status = :status
                           AND (
-                               :nome IS NULL
-                               OR :nome = ''
-                               OR LOWER(p.nome) LIKE LOWER(CONCAT('%', :nome, '%'))
-                               OR LOWER(p.descricao) LIKE LOWER(CONCAT('%', :nome, '%'))
+                               :termo IS NULL
+                               OR :termo = ''
+                               OR LOWER(p.nome) LIKE LOWER(CONCAT('%', :termo, '%'))
+                               OR LOWER(p.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))
                           )
             """)
-    List<ProdutoAutocompleteDTO> findAllProdutosByStatusAutocompleteDTO(@Param("nome") String nome, @Param("status") Status status);
+    List<AutocompleteDTO> findAllByStatusAndTermoAutocompleteDTO(@Param("termo") String termo, @Param(
+            "status") Status status);
 
     @Query("SELECT p FROM Produto p WHERE p.situacao = :situacao AND p.status = :status")
-    List<Produto> findAllProdutosBySituacaoAndStatus(@Param("situacao") Situacao situacao, @Param("status") Status status);
+    List<Produto> findAllBySituacaoAndStatus(@Param("situacao") Situacao situacao, @Param("status") Status status);
 }

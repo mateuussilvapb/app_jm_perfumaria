@@ -1,9 +1,10 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.query;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.categoria.repository.CategoriaRepository;
+import io.github.mateuussilvapb.app_jm_perfumaria.infra.categoria.exceptions.CategoriaNotFoundException;
+import io.github.mateuussilvapb.app_jm_perfumaria.infra.categoria.repository.ICategoriaRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -15,33 +16,38 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CategoriaQueryService {
 
-    CategoriaRepository categoriaRepository;
+    ICategoriaRepository categoriaRepository;
 
-    @Transactional
     public List<Categoria> findAllAtivos() {
-        return this.categoriaRepository.findAllCategoriasByStatus(Status.ATIVO);
+        return this.categoriaRepository.findAllByStatus(Status.ATIVO);
     }
 
-    @Transactional
     public List<Categoria> findAllInativos() {
-        return this.categoriaRepository.findAllCategoriasByStatus(Status.INATIVO);
+        return this.categoriaRepository.findAllByStatus(Status.INATIVO);
     }
 
-    @Transactional
     public List<Categoria> findAllByTermAndStatus(String searchTerm, Status status) {
-        List<Categoria> produtos;
+        List<Categoria> categorias;
 
         if (status == Status.ATIVO) {
-            produtos = this.findAllAtivos();
+            categorias = this.findAllAtivos();
         } else {
-            produtos = this.findAllInativos();
+            categorias = this.findAllInativos();
         }
 
         if (StringUtils.isNotBlank(searchTerm)) {
-            produtos = produtos.stream().filter(produto -> produto.matchSearchTerm(searchTerm)).collect(Collectors.toList());
+            categorias =
+                    categorias.stream().filter(categoria -> categoria.matchSearchTerm(searchTerm)).collect(Collectors.toList());
         }
 
-        return produtos;
+        return categorias;
     }
 
+    public List<AutocompleteDTO> findAllToAutocompleteByTermAndStatus(String searchTerm, Status status) {
+        return this.categoriaRepository.findAllByStatusAndTermoAutocompleteDTO(searchTerm, status);
+    }
+
+    public Categoria findById(Long id) {
+        return this.categoriaRepository.findById(id).orElseThrow(() -> new CategoriaNotFoundException(id));
+    }
 }

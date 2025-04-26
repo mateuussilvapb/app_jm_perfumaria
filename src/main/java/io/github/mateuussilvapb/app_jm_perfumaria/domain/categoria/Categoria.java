@@ -1,6 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.config.persistence.CreateAuditableEntity;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -8,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Categoria extends CreateAuditableEntity {
 
+    //Propriedades
     @NotBlank
     @Size(min = 3, max = 100)
     @Column(nullable = false, unique = true)
@@ -30,6 +34,11 @@ public class Categoria extends CreateAuditableEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    //Relacionamentos
+    @OneToMany(mappedBy = "marca")
+    private List<Produto> produtos;
+
+    //Métodos
     public boolean matchSearchTerm(String searchTerm) {
         if (StringUtils.isBlank(searchTerm)) {
             return false;

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -36,4 +37,13 @@ public class Marca extends CreateAuditableEntity {
     //Relacionamentos
     @OneToMany(mappedBy = "marca")
     private List<Produto> produtos;
+
+    //Métodos
+    public boolean matchSearchTerm(String searchTerm) {
+        if (StringUtils.isBlank(searchTerm)) {
+            return false;
+        }
+        return getNome().toLowerCase().contains(searchTerm.toLowerCase())
+                || (getDescricao() != null && getDescricao().toLowerCase().contains(searchTerm.toLowerCase()));
+    }
 }

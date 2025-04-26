@@ -11,13 +11,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ProdutoCommandService {
 
     private final ProdutoToProdutoDTO atualizarProdutoMapper;
     private final ProdutoQueryService produtoQueryService;
 
-    @Transactional
     public void deleteById(Long id) {
         var produto = produtoQueryService.findById(id);
         produto.setStatus(Status.INATIVO);
@@ -25,14 +25,12 @@ public class ProdutoCommandService {
         this.update(id, atualizarProdutoMapper.toDto(produto));
     }
 
-    @Transactional
     public Produto update(Long id, CreateUpdateProdutoDTO updatedProduto) {
         var produto = produtoQueryService.findById(id);
         //TODO: Necessário implementar service de Categoria e Marca para validação de ids
         return null;
     }
 
-    @Transactional
     public Produto create(CreateUpdateProdutoDTO createdProduto) {
         //TODO: Necessário implementar service de Categoria e Marca para validação de ids
         return null;
