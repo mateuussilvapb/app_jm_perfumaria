@@ -35,7 +35,7 @@ public class Categoria extends CreateAuditableEntity {
     private Status status;
 
     //Relacionamentos
-    @OneToMany(mappedBy = "marca")
+    @OneToMany(mappedBy = "categoria")
     private List<Produto> produtos;
 
     //Métodos
