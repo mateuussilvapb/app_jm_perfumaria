@@ -26,7 +26,6 @@ public class Categoria extends CreateAuditableEntity {
     @Column(nullable = false, unique = true)
     private String nome;
 
-    @NotBlank
     @Size(max = 1000)
     private String descricao;
 
