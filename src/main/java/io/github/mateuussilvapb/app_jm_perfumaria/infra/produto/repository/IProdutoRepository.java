@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IProdutoRepository extends JpaRepository<Produto, Long>, JpaSpecificationExecutor<Produto> {
@@ -34,4 +35,7 @@ public interface IProdutoRepository extends JpaRepository<Produto, Long>, JpaSpe
 
     @Query("SELECT p FROM Produto p WHERE p.situacao = :situacao AND p.status = :status")
     List<Produto> findAllBySituacaoAndStatus(@Param("situacao") Situacao situacao, @Param("status") Status status);
+
+    @Query("SELECT p FROM Produto p WHERE p.nome = :nome")
+    Optional<Produto> findByNome(@Param("nome") String nome);
 }

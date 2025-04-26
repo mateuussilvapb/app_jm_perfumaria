@@ -84,8 +84,11 @@ public class Produto extends CreateAuditableEntity implements Referable<String> 
         if (StringUtils.isBlank(searchTerm)) {
             return false;
         }
+        //Verifica se a String contém apenas números
+        if (searchTerm.matches("\\d+")) {
+            return (getCodigo() != null && getCodigo() == (Long.parseLong(searchTerm)));
+        }
         return getNome().toLowerCase().contains(searchTerm.toLowerCase())
-                || (getDescricao() != null && getDescricao().toLowerCase().contains(searchTerm.toLowerCase()))
-                || (getCodigo() != null && getCodigo() == (Long.parseLong(searchTerm)));
+                || (getDescricao() != null && getDescricao().toLowerCase().contains(searchTerm.toLowerCase()));
     }
 }
