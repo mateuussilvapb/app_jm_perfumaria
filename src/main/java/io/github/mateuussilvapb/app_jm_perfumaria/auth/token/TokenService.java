@@ -1,4 +1,4 @@
-package io.github.mateuussilvapb.app_jm_perfumaria.auth;
+package io.github.mateuussilvapb.app_jm_perfumaria.auth.token;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.auth.dtos.TokenResponse;
 import io.github.mateuussilvapb.app_jm_perfumaria.auth.dtos.UserDTO;
