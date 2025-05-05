@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(jsr250Enabled = true)
 public class SecurityConfig {
 
     @Value("${cors.allowed-origins}")
