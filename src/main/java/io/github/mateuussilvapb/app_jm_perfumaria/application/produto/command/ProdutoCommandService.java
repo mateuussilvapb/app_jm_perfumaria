@@ -30,7 +30,6 @@ public class ProdutoCommandService {
     private final IProdutoRepository produtoRepository;
     private final SequenceService sequenceService;
 
-
     public void deleteById(Long id) {
         var produto = produtoQueryService.findById(id);
         produto.setStatus(Status.INATIVO);
@@ -55,7 +54,7 @@ public class ProdutoCommandService {
         return produtoRepository.save(produto);
     }
 
-    public Produto create(CreateUpdateProdutoDTO createdProduto) {
+    public Produto create(CreateUpdateProdutoDTO createdProduto, Boolean isRascunho) {
         var produtoSameName = produtoRepository.findByNome(createdProduto.nome());
         if (produtoSameName.isPresent()) {
             if (produtoSameName.get().getStatus() == Status.INATIVO && produtoSameName.get().getSituacao() == Situacao.CADASTRO_FINALIZADO) {
@@ -72,6 +71,7 @@ public class ProdutoCommandService {
         }
         var produto = produtoDTOToProdutoMapper.toEntity(createdProduto);
         produto.setCodigo(sequenceService.getNextValue("seq_codigo_produto"));
+        produto.setSituacao(isRascunho ? Situacao.EM_CADASTRAMENTO : Situacao.CADASTRO_FINALIZADO);
         return produtoRepository.save(produto);
     }
 

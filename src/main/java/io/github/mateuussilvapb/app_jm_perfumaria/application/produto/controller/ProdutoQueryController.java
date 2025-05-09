@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/produto")
+@RequestMapping("/produtos/query")
 public class ProdutoQueryController {
 
     private final ProdutoQueryService produtoQueryService;
@@ -35,7 +35,7 @@ public class ProdutoQueryController {
     @GetMapping("/{id}")
     @RolesAllowed({"admin", "employee", "manager"})
     public ResponseEntity<Produto> getById(
-            @RequestParam(name = "id", required = false) String id
+            @PathVariable String id
     ) {
         return new ResponseEntity<>(produtoQueryService.findById(Long.parseLong(id)),
                 HttpStatus.OK);
