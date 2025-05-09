@@ -23,6 +23,10 @@ public class ProdutoQueryService {
 
     private final IProdutoRepository produtoRepository;
 
+    public List<Produto> findAll(){
+        return this.produtoRepository.findAll();
+    }
+
     public List<Produto> findAllAtivos() {
         return this.produtoRepository.findAllByStatus(Status.ATIVO);
     }
