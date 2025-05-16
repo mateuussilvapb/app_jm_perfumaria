@@ -18,20 +18,14 @@ public class ProdutoCommandController {
 
     @PostMapping("{isRascunho}")
     @RolesAllowed({"admin", "manager"})
-    public ResponseEntity<Produto> create(
-            @RequestBody CreateUpdateProdutoDTO produtoDTO,
-            @PathVariable Boolean isRascunho
-    ) {
+    public ResponseEntity<Produto> create(@RequestBody CreateUpdateProdutoDTO produtoDTO, @PathVariable Boolean isRascunho) {
         Produto produto = produtoCommandService.create(produtoDTO, isRascunho);
         return new ResponseEntity<>(produto, HttpStatus.CREATED);
     }
 
     @PutMapping("{id}")
     @RolesAllowed({"admin", "manager"})
-    public ResponseEntity<Produto> update(
-            @RequestBody CreateUpdateProdutoDTO produtoDTO,
-            @PathVariable String id
-    ) {
+    public ResponseEntity<Produto> update(@RequestBody CreateUpdateProdutoDTO produtoDTO, @PathVariable String id) {
         Produto produto = produtoCommandService.update(Long.parseLong(id), produtoDTO);
         return new ResponseEntity<>(produto, HttpStatus.OK);
     }

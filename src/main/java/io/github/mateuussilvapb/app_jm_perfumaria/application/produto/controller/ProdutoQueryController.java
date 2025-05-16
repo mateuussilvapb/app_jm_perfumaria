@@ -55,7 +55,7 @@ public class ProdutoQueryController {
 
     @GetMapping("/searchByTerm/ativos")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<Produto>> getProdutosAtivosByTerm(
+    public ResponseEntity<List<Produto>> getAtivosByTerm(
             @RequestParam(name = "term", required = false) String searchTerm
     ) {
         return new ResponseEntity<>(produtoQueryService.findAllByTermAndStatus(searchTerm, Status.ATIVO),
@@ -64,7 +64,7 @@ public class ProdutoQueryController {
 
     @GetMapping("/searchByTerm/inativos")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<Produto>> getProdutosInativosByTerm(
+    public ResponseEntity<List<Produto>> getInativosByTerm(
             @RequestParam(name = "term", required = false) String searchTerm
     ) {
         return new ResponseEntity<>(produtoQueryService.findAllByTermAndStatus(searchTerm,
@@ -74,7 +74,7 @@ public class ProdutoQueryController {
 
     @GetMapping("/searchByTerm/autocomplete/ativos")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<AutocompleteDTO>> getProdutosAtivosByTermAutocomplete(
+    public ResponseEntity<List<AutocompleteDTO>> getAtivosByTermAutocomplete(
             @RequestParam(name = "term", required = false) String searchTerm
     ) {
         return new ResponseEntity<>(produtoQueryService.findAllToAutocompleteByTermAndStatus(searchTerm,
@@ -84,7 +84,7 @@ public class ProdutoQueryController {
 
     @GetMapping("/searchByTerm/autocomplete/inativos")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<AutocompleteDTO>> getProdutosInativosByTermAutocomplete(
+    public ResponseEntity<List<AutocompleteDTO>> getInativosByTermAutocomplete(
             @RequestParam(name = "term", required = false) String searchTerm
     ) {
         return new ResponseEntity<>(produtoQueryService.findAllToAutocompleteByTermAndStatus(searchTerm,
@@ -94,7 +94,7 @@ public class ProdutoQueryController {
 
     @GetMapping("/searchBySituacao/ativos")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<Produto>> getProdutosAtivosBySituacao(
+    public ResponseEntity<List<Produto>> getAtivosBySituacao(
             @RequestParam(name = "situacao") Situacao situacao
     ) {
         return new ResponseEntity<>(produtoQueryService.findAllBySituacaoAndStatus(situacao,
@@ -104,7 +104,7 @@ public class ProdutoQueryController {
 
     @GetMapping("/searchBySituacao/inativos")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<Produto>> getProdutosInativosBySituacao(
+    public ResponseEntity<List<Produto>> getInativosBySituacao(
             @RequestParam(name = "situacao") Situacao situacao
     ) {
         return new ResponseEntity<>(produtoQueryService.findAllBySituacaoAndStatus(situacao,
@@ -114,7 +114,7 @@ public class ProdutoQueryController {
 
     @GetMapping("/searchByFilters")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<Page<Produto>> getProdutosByFilters(
+    public ResponseEntity<Page<Produto>> getByFilters(
             @ModelAttribute ProdutoFiltersDTO filtersDTO,
             @PageableDefault(size = 20, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable
     ) {
