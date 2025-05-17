@@ -2,6 +2,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.exceptions;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaSameNameException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.EntradaEstoqueSemProdutosException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.MarcaNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.MarcaSameNameException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.ProdutoEmCadastramentoException;
@@ -67,6 +68,13 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MarcaSameNameException.class)
     public ResponseEntity<ErrorResponse> handleCategoriaMarcaName(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(EntradaEstoqueSemProdutosException.class)
+    public ResponseEntity<ErrorResponse> handleEntradaEstoqueSemProduto(Exception ex) {
         log.error(ex.getMessage(), ex);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
     }

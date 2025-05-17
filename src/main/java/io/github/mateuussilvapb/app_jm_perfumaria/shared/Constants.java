@@ -8,6 +8,4 @@ public class Constants {
     public static final String SEQ_PRODUTO = "seq_codigo_produto";
     public static final String SEQ_ENTRADA_ESTOQUE = "seq_entrada_estoque";
     public static final String SEQ_SAIDA_ESTOQUE = "seq_saida_estoque";
-    public static final String SEQ_PRODUTO_SAIDA_ESTOQUE = "seq_produto_saida_estoque";
-    public static final String SEQ_PRODUTO_ENTRADA_ESTOQUE = "seq_produto_entrada_estoque";
 }
