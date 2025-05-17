@@ -1,6 +1,8 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoEntradaEstoque;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.github.mateuussilvapb.app_jm_perfumaria.config.persistence.CreateAuditableEntity;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.entradaEstoque.EntradaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
@@ -43,10 +45,12 @@ public class ProdutoEntradaEstoque extends CreateAuditableEntity {
     @NotNull(message = "O produto é obrigatório")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_produto", nullable = false)
+    @JsonManagedReference
     private Produto produto;
 
     @NotNull(message = "A entrada de estoque é obrigatória")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "entrada_estoque_id", nullable = false)
+    @JsonBackReference
     private EntradaEstoque entradaEstoque;
 }

@@ -1,6 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.domain.produto;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.github.mateuussilvapb.app_jm_perfumaria.config.persistence.CreateAuditableEntity;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
@@ -72,9 +73,11 @@ public class Produto extends CreateAuditableEntity implements Referable<String> 
     private Categoria categoria;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private List<ProdutoEntradaEstoque> entradasEstoque;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private List<ProdutoSaidaEstoque> saidasEstoque;
 
     //Demais métodos

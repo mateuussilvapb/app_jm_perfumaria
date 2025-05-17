@@ -1,5 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.domain.saidaEstoque;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.github.mateuussilvapb.app_jm_perfumaria.config.persistence.CreateAuditableEntity;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoSaidaEstoque.ProdutoSaidaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
@@ -38,6 +39,7 @@ public class SaidaEstoque extends CreateAuditableEntity {
     //Relacionamentos
     @OneToMany(mappedBy = "saidaEstoque", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("created_at ASC")
+    @JsonManagedReference
     private List<ProdutoSaidaEstoque> saidasProdutos;
 
     //Demais métodos
@@ -45,7 +47,6 @@ public class SaidaEstoque extends CreateAuditableEntity {
         if (StringUtils.isBlank(searchTerm)) {
             return false;
         }
-        return (getDescricao() != null && getDescricao().toLowerCase().contains(searchTerm.toLowerCase()))
-                || (getCodigo() != null && getCodigo() == (Long.parseLong(searchTerm)));
+        return (getDescricao() != null && getDescricao().toLowerCase().contains(searchTerm.toLowerCase())) || (getCodigo() != null && getCodigo() == (Long.parseLong(searchTerm)));
     }
 }
