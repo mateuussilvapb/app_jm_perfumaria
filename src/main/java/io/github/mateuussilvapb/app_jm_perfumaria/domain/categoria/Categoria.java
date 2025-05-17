@@ -1,5 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.github.mateuussilvapb.app_jm_perfumaria.config.persistence.CreateAuditableEntity;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
@@ -35,6 +36,7 @@ public class Categoria extends CreateAuditableEntity {
 
     //Relacionamentos
     @OneToMany(mappedBy = "categoria")
+    @JsonBackReference
     private List<Produto> produtos;
 
     //Métodos

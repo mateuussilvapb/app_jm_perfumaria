@@ -1,6 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.domain.produto;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.github.mateuussilvapb.app_jm_perfumaria.config.persistence.CreateAuditableEntity;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
@@ -61,11 +62,13 @@ public class Produto extends CreateAuditableEntity implements Referable<String> 
     @NotNull(message = "A marca é obrigatória")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "id_marca", nullable = false)
+    @JsonManagedReference
     private Marca marca;
 
     @NotNull(message = "A categoria é obrigatória")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "id_categoria", nullable = false)
+    @JsonManagedReference
     private Categoria categoria;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
