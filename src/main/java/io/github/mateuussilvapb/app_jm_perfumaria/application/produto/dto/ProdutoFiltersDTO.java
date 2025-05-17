@@ -15,6 +15,7 @@ public record ProdutoFiltersDTO(
         Status status,
         Situacao situacao,
         Long idCategoria,
-        Long idMarca
+        Long idMarca,
+        Long codigo
 ) {
 }

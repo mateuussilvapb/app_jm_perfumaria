@@ -1,7 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.specification;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.ProdutoFiltersDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import jakarta.persistence.criteria.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
@@ -53,6 +53,10 @@ public class ProdutoSpecification {
 
             if (filtros.idMarca() != null) {
                 predicates.add(cb.equal(root.get("marca").get("id"), filtros.idMarca()));
+            }
+
+            if (filtros.codigo() != null) {
+                predicates.add(cb.equal(root.get("codigo"), filtros.codigo()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
