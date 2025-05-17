@@ -2,7 +2,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.query;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.categoria.exceptions.CategoriaNotFoundException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.categoria.repository.ICategoriaRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import lombok.RequiredArgsConstructor;

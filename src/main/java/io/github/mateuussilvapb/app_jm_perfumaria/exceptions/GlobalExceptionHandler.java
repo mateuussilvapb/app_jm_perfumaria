@@ -1,12 +1,12 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.exceptions;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.categoria.exceptions.CategoriaNotFoundException;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.categoria.exceptions.CategoriaSameNameException;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.marca.exceptions.MarcaNotFoundException;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.marca.exceptions.MarcaSameNameException;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.exceptions.ProdutoEmCadastramentoException;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.exceptions.ProdutoNotFoundException;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.exceptions.ProdutoSameNameException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaNotFoundException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaSameNameException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.MarcaNotFoundException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.MarcaSameNameException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.ProdutoEmCadastramentoException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.ProdutoNotFoundException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.ProdutoSameNameException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

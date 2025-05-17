@@ -4,7 +4,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.Autocom
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.ProdutoFiltersDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.specification.ProdutoSpecification;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.exceptions.ProdutoNotFoundException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.ProdutoNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.repository.IProdutoRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import lombok.RequiredArgsConstructor;

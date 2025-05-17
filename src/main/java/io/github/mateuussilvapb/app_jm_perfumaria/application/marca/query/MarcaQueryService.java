@@ -2,7 +2,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.marca.query;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.marca.exceptions.MarcaNotFoundException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.MarcaNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.marca.repository.IMarcaRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import lombok.RequiredArgsConstructor;

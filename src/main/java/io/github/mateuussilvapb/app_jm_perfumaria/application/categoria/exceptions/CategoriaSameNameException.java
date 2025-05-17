@@ -1,4 +1,4 @@
-package io.github.mateuussilvapb.app_jm_perfumaria.infra.categoria.exceptions;
+package io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions;
 
 public class CategoriaSameNameException extends RuntimeException {
     public CategoriaSameNameException(String name) {

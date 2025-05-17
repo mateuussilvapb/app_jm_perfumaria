@@ -1,4 +1,4 @@
-package io.github.mateuussilvapb.app_jm_perfumaria.infra.marca.exceptions;
+package io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions;
 
 public class MarcaNotFoundException extends RuntimeException {
     public MarcaNotFoundException(Long id) {

@@ -3,7 +3,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.marca.command;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.CreateUpdateDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.query.MarcaQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.marca.exceptions.MarcaSameNameException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.MarcaSameNameException;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.marca.repository.IMarcaRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import lombok.RequiredArgsConstructor;
