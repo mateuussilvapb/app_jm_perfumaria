@@ -5,6 +5,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.Create
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class ProdutoCommandController {
 
     @PostMapping
     @RolesAllowed({"admin", "manager"})
-    public ResponseEntity<Produto> create(@RequestBody CreateUpdateProdutoDTO produtoDTO) {
+    public ResponseEntity<Produto> create(@RequestBody @Valid CreateUpdateProdutoDTO produtoDTO) {
         var isRascunho = produtoDTO.situacao() == Situacao.EM_CADASTRAMENTO;
         Produto produto = produtoCommandService.create(produtoDTO, isRascunho);
         return new ResponseEntity<>(produto, HttpStatus.CREATED);
@@ -27,7 +28,8 @@ public class ProdutoCommandController {
 
     @PutMapping("{id}")
     @RolesAllowed({"admin", "manager"})
-    public ResponseEntity<Produto> update(@RequestBody CreateUpdateProdutoDTO produtoDTO, @PathVariable String id) {
+    public ResponseEntity<Produto> update(@RequestBody @Valid CreateUpdateProdutoDTO produtoDTO,
+                                          @PathVariable String id) {
         Produto produto = produtoCommandService.update(Long.parseLong(id), produtoDTO);
         return new ResponseEntity<>(produto, HttpStatus.OK);
     }
