@@ -11,6 +11,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.exceptions.Produ
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.interfaces.IProdutoDTOToProduto;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.interfaces.IProdutoToProdutoDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.repository.IProdutoRepository;
+import io.github.mateuussilvapb.app_jm_perfumaria.shared.Constants;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import jakarta.transaction.Transactional;
@@ -70,7 +71,7 @@ public class ProdutoCommandService {
             }
         }
         var produto = produtoDTOToProdutoMapper.toEntity(createdProduto);
-        produto.setCodigo(sequenceService.getNextValue("seq_codigo_produto"));
+        produto.setCodigo(sequenceService.getNextValue(Constants.SEQ_PRODUTO));
         produto.setSituacao(isRascunho ? Situacao.EM_CADASTRAMENTO : Situacao.CADASTRO_FINALIZADO);
         return produtoRepository.save(produto);
     }
