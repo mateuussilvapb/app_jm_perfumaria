@@ -8,8 +8,8 @@ import io.github.mateuussilvapb.app_jm_perfumaria.config.persistence.SequenceSer
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.exceptions.ProdutoEmCadastramentoException;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.exceptions.ProdutoSameNameException;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.interfaces.IProdutoDTOToProduto;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.interfaces.IProdutoToProdutoDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoDTOToProduto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.repository.IProdutoRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.Constants;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
