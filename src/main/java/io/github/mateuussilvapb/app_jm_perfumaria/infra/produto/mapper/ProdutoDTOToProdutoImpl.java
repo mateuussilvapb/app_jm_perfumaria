@@ -1,16 +1,16 @@
-package io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper;
+package io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.mapper;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.query.CategoriaQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.query.MarcaQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.CreateUpdateProdutoDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoDTOToProduto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.interfaces.IProdutoDTOToProduto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class ProdutoDTOToProdutoImpl implements IProdutoDTOToProduto {
 

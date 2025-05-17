@@ -1,11 +1,11 @@
-package io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper;
+package io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.mapper;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.CreateUpdateProdutoDTO;
-import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.interfaces.IProdutoToProdutoDTO;
-import org.springframework.stereotype.Service;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class ProdutoToProdutoDTOImpl implements IProdutoToProdutoDTO {
 
     @Override
