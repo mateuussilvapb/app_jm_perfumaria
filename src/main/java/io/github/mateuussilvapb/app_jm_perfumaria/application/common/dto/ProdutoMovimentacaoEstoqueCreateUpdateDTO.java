@@ -1,10 +1,10 @@
-package io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.dto;
+package io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 
 import java.math.BigDecimal;
 
-public record ProdutoEntradaEstoqueCreateUptadeDTO(
+public record ProdutoMovimentacaoEstoqueCreateUpdateDTO(
         String idProduto,
         BigDecimal precoUnitario,
         Integer quantidade,

@@ -1,6 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.command;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueCreateUpdateDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.MovimentacaoEstoqueCreateUpdateDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.ProdutoMovimentacaoEstoqueCreateUpdateDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.EntradaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.EntradaEstoqueSemProdutosException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.mapper.IEntradaEstoqueDTOtoEntradaEstoque;
@@ -8,7 +9,6 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command.Pr
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.CreateUpdateProdutoDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.ProdutoQueryService;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.dto.ProdutoEntradaEstoqueCreateUptadeDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.mapper.IProdutoEntradaEstoqueDTOtoProdutoEntradaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.config.persistence.SequenceService;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.entradaEstoque.EntradaEstoque;
@@ -37,7 +37,7 @@ public class EntradaEstoqueCommandService {
     private final IProdutoToProdutoDTO produtoDTOMapper;
     private final ProdutoCommandService produtoCommandService;
 
-    public EntradaEstoque createEntradaEstoqueComProdutos(EntradaEstoqueCreateUpdateDTO dto) {
+    public EntradaEstoque createEntradaEstoqueComProdutos(MovimentacaoEstoqueCreateUpdateDTO dto) {
         // Valida se o dto possui produtos
         this.validarProdutos(dto.produtos());
         // Pegar código sequencial
@@ -53,7 +53,7 @@ public class EntradaEstoqueCommandService {
     }
 
     @Transactional
-    public EntradaEstoque updateEntradaEstoque(Long id, EntradaEstoqueCreateUpdateDTO dto) {
+    public EntradaEstoque updateEntradaEstoque(Long id, MovimentacaoEstoqueCreateUpdateDTO dto) {
         // Valida se o dto possui produtos
         this.validarProdutos(dto.produtos());
         // Recupera o entradaEstoque do banco de dados
@@ -78,7 +78,7 @@ public class EntradaEstoqueCommandService {
     }
 
     // Método para mapear um array de dtos de ProdutoEntradaEstoque para um array de ProdutoEntradaEstoque
-    private List<ProdutoEntradaEstoque> mapToProdutoEntradaEstoqueList(List<ProdutoEntradaEstoqueCreateUptadeDTO> produtosDTO, EntradaEstoque entradaEstoque) {
+    private List<ProdutoEntradaEstoque> mapToProdutoEntradaEstoqueList(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtosDTO, EntradaEstoque entradaEstoque) {
         return produtosDTO.stream().map(dto -> {
             Produto produto = produtoQueryService.findById(Long.parseLong(dto.idProduto()));
             produto.setPrecoCusto(dto.precoUnitario());
@@ -89,7 +89,7 @@ public class EntradaEstoqueCommandService {
     }
 
     // Validando se o dto possui produtos
-    private void validarProdutos(List<ProdutoEntradaEstoqueCreateUptadeDTO> produtos) {
+    private void validarProdutos(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtos) {
         if (produtos == null || produtos.isEmpty()) {
             throw new EntradaEstoqueSemProdutosException();
         }

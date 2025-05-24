@@ -1,8 +1,8 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.controller;
 
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.MovimentacaoEstoqueCreateUpdateDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.command.EntradaEstoqueCommandService;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueCreateUpdateDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.entradaEstoque.EntradaEstoque;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
@@ -21,14 +21,15 @@ public class EntradaEstoqueCommandController {
 
     @PostMapping
     @RolesAllowed({"admin", "manager"})
-    public ResponseEntity<EntradaEstoque> create(@RequestBody @Valid EntradaEstoqueCreateUpdateDTO dto) {
+    public ResponseEntity<EntradaEstoque> create(@RequestBody @Valid MovimentacaoEstoqueCreateUpdateDTO dto) {
         EntradaEstoque created = commandService.createEntradaEstoqueComProdutos(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @RolesAllowed({"admin", "manager"})
-    public ResponseEntity<EntradaEstoque> update(@PathVariable Long id, @RequestBody @Valid EntradaEstoqueCreateUpdateDTO dto) {
+    public ResponseEntity<EntradaEstoque> update(@PathVariable Long id,
+                                                 @RequestBody @Valid MovimentacaoEstoqueCreateUpdateDTO dto) {
         EntradaEstoque updated = commandService.updateEntradaEstoque(id, dto);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
