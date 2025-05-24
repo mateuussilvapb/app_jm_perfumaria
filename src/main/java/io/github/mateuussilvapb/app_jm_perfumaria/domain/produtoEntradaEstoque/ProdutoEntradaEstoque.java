@@ -43,13 +43,13 @@ public class ProdutoEntradaEstoque extends CreateAuditableEntity {
 
     //Relacionamentos
     @NotNull(message = "O produto é obrigatório")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "id_produto", nullable = false)
     @JsonManagedReference
     private Produto produto;
 
     @NotNull(message = "A entrada de estoque é obrigatória")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "entrada_estoque_id", nullable = false)
     @JsonBackReference
     private EntradaEstoque entradaEstoque;
