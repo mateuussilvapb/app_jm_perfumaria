@@ -59,6 +59,10 @@ public class Produto extends CreateAuditableEntity implements Referable<String> 
     @Column(name = "codigo", nullable = false, unique = true, updatable = false)
     private Long codigo;
 
+    @Column(name = "quantidade_estoque", nullable = false)
+    @Min(0)
+    private Integer quantidadeEmEstoque;
+
     //Relacionamentos
     @NotNull(message = "A marca é obrigatória")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
