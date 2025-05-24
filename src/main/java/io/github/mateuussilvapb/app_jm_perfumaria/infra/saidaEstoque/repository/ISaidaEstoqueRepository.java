@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SaidaEstoqueRepository extends JpaRepository<SaidaEstoque, Long> {
+public interface ISaidaEstoqueRepository extends JpaRepository<SaidaEstoque, Long> {
 }
