@@ -4,6 +4,9 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.EntradaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.EntradaEstoqueSemProdutosException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.mapper.IEntradaEstoqueDTOtoEntradaEstoque;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command.ProdutoCommandService;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.CreateUpdateProdutoDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.ProdutoQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.dto.ProdutoEntradaEstoqueCreateUptadeDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.mapper.IProdutoEntradaEstoqueDTOtoProdutoEntradaEstoque;
@@ -31,6 +34,8 @@ public class EntradaEstoqueCommandService {
     private final SequenceService sequenceService;
     private final IEntradaEstoqueDTOtoEntradaEstoque entradaEstoqueMapper;
     private final IProdutoEntradaEstoqueDTOtoProdutoEntradaEstoque produtoEntradaEstoqueMapper;
+    private final IProdutoToProdutoDTO produtoDTOMapper;
+    private final ProdutoCommandService produtoCommandService;
 
     public EntradaEstoque createEntradaEstoqueComProdutos(EntradaEstoqueCreateUpdateDTO dto) {
         // Valida se o dto possui produtos
@@ -76,6 +81,9 @@ public class EntradaEstoqueCommandService {
     private List<ProdutoEntradaEstoque> mapToProdutoEntradaEstoqueList(List<ProdutoEntradaEstoqueCreateUptadeDTO> produtosDTO, EntradaEstoque entradaEstoque) {
         return produtosDTO.stream().map(dto -> {
             Produto produto = produtoQueryService.findById(Long.parseLong(dto.idProduto()));
+            produto.setPrecoCusto(dto.precoUnitario());
+            CreateUpdateProdutoDTO produtoDTO = produtoDTOMapper.toDto(produto);
+            produtoCommandService.update(produto.getId(), produtoDTO);
             return produtoEntradaEstoqueMapper.toEntity(dto, produto, entradaEstoque);
         }).collect(Collectors.toList());
     }
