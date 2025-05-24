@@ -1,9 +1,9 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.command;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.MovimentacaoEstoqueCreateUpdateDTO;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.ProdutoMovimentacaoEstoqueCreateUpdateDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueCreateUpdateDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueCreateUpdateDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.validacoes.ValidationsMovimentacao;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.EntradaEstoqueNotFoundException;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.EntradaEstoqueSemProdutosException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.mapper.IEntradaEstoqueDTOtoEntradaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command.ProdutoCommandService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.CreateUpdateProdutoDTO;
@@ -39,7 +39,7 @@ public class EntradaEstoqueCommandService {
 
     public EntradaEstoque createEntradaEstoqueComProdutos(MovimentacaoEstoqueCreateUpdateDTO dto) {
         // Valida se o dto possui produtos
-        this.validarProdutos(dto.produtos());
+        ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
         // Pegar código sequencial
         var codigo = sequenceService.getNextValue(Constants.SEQ_ENTRADA_ESTOQUE);
         // Lista de ProdutoEntradaEstoque
@@ -55,7 +55,7 @@ public class EntradaEstoqueCommandService {
     @Transactional
     public EntradaEstoque updateEntradaEstoque(Long id, MovimentacaoEstoqueCreateUpdateDTO dto) {
         // Valida se o dto possui produtos
-        this.validarProdutos(dto.produtos());
+        ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
         // Recupera o entradaEstoque do banco de dados
         EntradaEstoque entradaEstoque = entradaEstoqueRepository.findById(id).orElseThrow(() -> new EntradaEstoqueNotFoundException(id));
         // Atualiza os campos primitivos
@@ -87,12 +87,4 @@ public class EntradaEstoqueCommandService {
             return produtoEntradaEstoqueMapper.toEntity(dto, produto, entradaEstoque);
         }).collect(Collectors.toList());
     }
-
-    // Validando se o dto possui produtos
-    private void validarProdutos(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtos) {
-        if (produtos == null || produtos.isEmpty()) {
-            throw new EntradaEstoqueSemProdutosException();
-        }
-    }
-
 }
