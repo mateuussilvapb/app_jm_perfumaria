@@ -37,9 +37,12 @@ public class EntradaEstoqueCommandService {
     private final IProdutoToProdutoDTO produtoDTOMapper;
     private final ProdutoCommandService produtoCommandService;
 
+    @Transactional
     public EntradaEstoque createEntradaEstoqueComProdutos(MovimentacaoEstoqueCreateUpdateDTO dto) {
-        // Valida se o dto possui produtos
+        // Validações dos produtos
         ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
+        ValidationsMovimentacao.validateIfPrecoLessThenOne(dto.produtos());
+        ValidationsMovimentacao.validateIfDescontoLessThenOne(dto.produtos());
         // Pegar código sequencial
         var codigo = sequenceService.getNextValue(Constants.SEQ_ENTRADA_ESTOQUE);
         // Lista de ProdutoEntradaEstoque
@@ -54,8 +57,10 @@ public class EntradaEstoqueCommandService {
 
     @Transactional
     public EntradaEstoque updateEntradaEstoque(Long id, MovimentacaoEstoqueCreateUpdateDTO dto) {
-        // Valida se o dto possui produtos
+        // Validações dos produtos
         ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
+        ValidationsMovimentacao.validateIfPrecoLessThenOne(dto.produtos());
+        ValidationsMovimentacao.validateIfDescontoLessThenOne(dto.produtos());
         // Recupera o entradaEstoque do banco de dados
         EntradaEstoque entradaEstoque = entradaEstoqueRepository.findById(id).orElseThrow(() -> new EntradaEstoqueNotFoundException(id));
         // Atualiza os campos primitivos
@@ -72,19 +77,25 @@ public class EntradaEstoqueCommandService {
         return entradaEstoqueRepository.save(entradaEstoque);
     }
 
+    @Transactional
     public void deleteEntradaEstoque(Long id) {
         EntradaEstoque entradaEstoque = entradaEstoqueRepository.findById(id).orElseThrow(() -> new EntradaEstoqueNotFoundException(id));
         entradaEstoqueRepository.delete(entradaEstoque);
     }
 
-    // Método para mapear um array de dtos de ProdutoEntradaEstoque para um array de ProdutoEntradaEstoque
+    // Método para mapear um array de dtos de ProdutoMovimentacaoEstoque para um array de  ProdutoEntradaEstoque
     private List<ProdutoEntradaEstoque> mapToProdutoEntradaEstoqueList(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtosDTO, EntradaEstoque entradaEstoque) {
         return produtosDTO.stream().map(dto -> {
             Produto produto = produtoQueryService.findById(Long.parseLong(dto.idProduto()));
             produto.setPrecoCusto(dto.precoUnitario());
             CreateUpdateProdutoDTO produtoDTO = produtoDTOMapper.toDto(produto);
             produtoCommandService.update(produto.getId(), produtoDTO);
+            atualizarEstoquePorProduto(dto);
             return produtoEntradaEstoqueMapper.toEntity(dto, produto, entradaEstoque);
         }).collect(Collectors.toList());
+    }
+
+    private void atualizarEstoquePorProduto(ProdutoMovimentacaoEstoqueCreateUpdateDTO produtoDTO) {
+        this.produtoCommandService.adicionarEstoque(Long.parseLong(produtoDTO.idProduto()), produtoDTO.quantidade());
     }
 }
