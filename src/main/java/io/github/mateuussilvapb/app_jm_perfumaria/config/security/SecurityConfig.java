@@ -27,8 +27,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable).headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)).oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(new JWTConverter()))).authorizeHttpRequests(auth -> auth.requestMatchers(ALLOW_ACCESS).permitAll().anyRequest().authenticated());
-
+        http.cors(cors -> {
+        }).csrf(AbstractHttpConfigurer::disable).headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)).oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(new JWTConverter()))).authorizeHttpRequests(auth -> auth.requestMatchers(ALLOW_ACCESS).permitAll().anyRequest().authenticated());
         return http.build();
     }
 
