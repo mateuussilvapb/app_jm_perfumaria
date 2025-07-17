@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,12 @@ public class CategoriaQueryService {
             categorias =
                     categorias.stream().filter(categoria -> categoria.matchSearchTerm(searchTerm)).collect(Collectors.toList());
         }
+
+        categorias.sort(
+                Comparator
+                        .comparing((Categoria c) -> c.getStatus() == Status.ATIVO ? 0 : 1)
+                        .thenComparing(Categoria::getNome, String.CASE_INSENSITIVE_ORDER)
+        );
 
         return categorias;
     }
