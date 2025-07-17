@@ -1,9 +1,9 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.command;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaSameNameException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.query.CategoriaQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.CreateUpdateDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaSameNameException;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.categoria.repository.ICategoriaRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import lombok.RequiredArgsConstructor;
@@ -48,4 +48,14 @@ public class CategoriaCommandService {
         return categoriaRepository.save(categoria);
     }
 
+    public Categoria toogleStatus(Long id) {
+        var categoria = categoriaQueryService.findById(id);
+        Status statusAtual = categoria.getStatus();
+        if (statusAtual.equals(Status.ATIVO)) {
+            categoria.setStatus(Status.INATIVO);
+        } else {
+            categoria.setStatus(Status.ATIVO);
+        }
+        return categoriaRepository.save(categoria);
+    }
 }
