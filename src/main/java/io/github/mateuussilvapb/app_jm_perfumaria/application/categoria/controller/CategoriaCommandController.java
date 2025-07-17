@@ -37,7 +37,7 @@ public class CategoriaCommandController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("/toogleStatus/{id}")
+    @PatchMapping("/toogleStatus/{id}")
     @RolesAllowed({"admin", "manager"})
     public ResponseEntity<Categoria> toogleStatus(@PathVariable String id) {
         Categoria categoria = categoriaCommandService.toogleStatus(Long.parseLong(id));
