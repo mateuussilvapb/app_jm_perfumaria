@@ -22,7 +22,7 @@ public class CategoriaQueryController {
     @GetMapping
     @RolesAllowed({"admin", "employee", "manager"})
     public ResponseEntity<List<Categoria>> getAll() {
-        List<Categoria> categorias = categoriaQueryService.findAllAtivos();
+        List<Categoria> categorias = categoriaQueryService.findAll();
         return new ResponseEntity<>(categorias, HttpStatus.OK);
     }
 
@@ -66,5 +66,11 @@ public class CategoriaQueryController {
     @RolesAllowed({"admin", "employee", "manager"})
     public ResponseEntity<List<AutocompleteDTO>> getInativosByTermAutocomplete(@RequestParam(name = "term", required = false) String searchTerm) {
         return new ResponseEntity<>(categoriaQueryService.findAllToAutocompleteByTermAndStatus(searchTerm, Status.INATIVO), HttpStatus.OK);
+    }
+
+    @GetMapping("/searchByTermAndStatus")
+    @RolesAllowed({"admin", "employee", "manager"})
+    public ResponseEntity<List<Categoria>> getByTermAndStatus(@RequestParam(name = "term", required = false) String searchTerm, @RequestParam(name = "status", required = false) Status status) {
+        return new ResponseEntity<>(categoriaQueryService.findAllByTermAndStatus(searchTerm, status), HttpStatus.OK);
     }
 }
