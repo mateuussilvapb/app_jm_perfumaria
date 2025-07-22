@@ -12,6 +12,8 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -102,10 +104,7 @@ public class KeycloakUserService {
             List<RoleRepresentation> realmRoles = realmResource.roles().list();
             List<RoleRepresentation> realmRolesToAdd = new ArrayList<>();
             for (String roleName : roleNames) {
-                realmRoles.stream()
-                        .filter(role -> role.getName().equals(roleName))
-                        .findFirst()
-                        .ifPresent(realmRolesToAdd::add);
+                realmRoles.stream().filter(role -> role.getName().equals(roleName)).findFirst().ifPresent(realmRolesToAdd::add);
             }
             if (!realmRolesToAdd.isEmpty()) {
                 userResource.roles().realmLevel().add(realmRolesToAdd);
@@ -115,17 +114,11 @@ public class KeycloakUserService {
             List<ClientRepresentation> clients = realmResource.clients().findByClientId(clientId);
             if (!clients.isEmpty()) {
                 String clientUuid = clients.get(0).getId();
-                List<RoleRepresentation> clientRoles = realmResource.clients()
-                        .get(clientUuid)
-                        .roles()
-                        .list();
+                List<RoleRepresentation> clientRoles = realmResource.clients().get(clientUuid).roles().list();
 
                 List<RoleRepresentation> clientRolesToAdd = new ArrayList<>();
                 for (String roleName : roleNames) {
-                    clientRoles.stream()
-                            .filter(role -> role.getName().equals(roleName))
-                            .findFirst()
-                            .ifPresent(clientRolesToAdd::add);
+                    clientRoles.stream().filter(role -> role.getName().equals(roleName)).findFirst().ifPresent(clientRolesToAdd::add);
                 }
 
                 if (!clientRolesToAdd.isEmpty()) {
@@ -180,8 +173,7 @@ public class KeycloakUserService {
         return users.isEmpty() ? null : users.getFirst();
     }
 
-    public boolean updateKeycloakUser(String userId, String firstName, String lastName,
-                                      String email, List<UserRoles> userRoles) {
+    public boolean updateKeycloakUser(String userId, String firstName, String lastName, String email, List<UserRoles> userRoles) {
         Keycloak keycloak = getKeycloakInstance();
         RealmResource realmResource = keycloak.realm(realm);
         UsersResource usersResource = realmResource.users();
@@ -250,8 +242,7 @@ public class KeycloakUserService {
             List<RoleRepresentation> realmRoles = userResource.roles().realmLevel().listEffective();
 
             // Verifica se o nome do role está entre os retornados
-            return realmRoles.stream()
-                    .anyMatch(r -> r.getName().equals(role.name()));
+            return realmRoles.stream().anyMatch(r -> r.getName().equals(role.name()));
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -265,13 +256,32 @@ public class KeycloakUserService {
 
         List<String> defaultRoleNames = List.of("default-roles-jmperfumaria");
 
-        List<RoleRepresentation> rolesToRemove = defaultRoleNames.stream()
-                .map(roleName -> realmResource.roles().get(roleName).toRepresentation())
-                .collect(Collectors.toList());
+        List<RoleRepresentation> rolesToRemove = defaultRoleNames.stream().map(roleName -> realmResource.roles().get(roleName).toRepresentation()).collect(Collectors.toList());
 
         userResource.roles().realmLevel().remove(rolesToRemove);
 
     }
 
+    public boolean updateLoggedUserPassword(String newPassword) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userId = authentication.getName(); // geralmente o 'preferred_username'
+
+            Keycloak keycloak = getKeycloakInstance();
+            RealmResource realmResource = keycloak.realm(realm);
+            UserResource userResource = realmResource.users().get(userId);
+
+            CredentialRepresentation credential = new CredentialRepresentation();
+            credential.setType(CredentialRepresentation.PASSWORD);
+            credential.setTemporary(false);
+            credential.setValue(newPassword);
+
+            userResource.resetPassword(credential);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }

@@ -48,14 +48,7 @@ public class KeycloakUserController {
 
     @PostMapping
     public ResponseEntity<String> createUser(@RequestBody UserDTO userDTO) {
-        boolean result = keycloakUserService.createKeycloakUserWithAppRoles(
-                userDTO.getUsername(),
-                userDTO.getEmail(),
-                userDTO.getFirstName(),
-                userDTO.getLastName(),
-                userDTO.getPassword(),
-                userDTO.getRoles()
-        );
+        boolean result = keycloakUserService.createKeycloakUserWithAppRoles(userDTO.getUsername(), userDTO.getEmail(), userDTO.getFirstName(), userDTO.getLastName(), userDTO.getPassword(), userDTO.getRoles());
 
         if (result) {
             return new ResponseEntity<>("User created successfully", HttpStatus.CREATED);
@@ -78,13 +71,7 @@ public class KeycloakUserController {
 
     @PutMapping("/{userId}")
     public ResponseEntity<String> updateUser(@PathVariable String userId, @RequestBody UserDTO userDTO) {
-        boolean result = keycloakUserService.updateKeycloakUser(
-                userId,
-                userDTO.getFirstName(),
-                userDTO.getLastName(),
-                userDTO.getEmail(),
-                userDTO.getRoles()
-        );
+        boolean result = keycloakUserService.updateKeycloakUser(userId, userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getRoles());
 
         if (result) {
             return new ResponseEntity<>("User updated successfully", HttpStatus.OK);
@@ -101,6 +88,16 @@ public class KeycloakUserController {
             return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Failed to delete user", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/senha")
+    public ResponseEntity<?> alterarSenha(@RequestBody UpdatePasswordDTO data) {
+        boolean alterada = keycloakUserService.updateLoggedUserPassword(data.getNewPassword());
+        if (alterada) {
+            return ResponseEntity.ok().body("Senha alterada com sucesso.");
+        } else {
+            return ResponseEntity.badRequest().body("Erro ao alterar senha.");
         }
     }
 }
