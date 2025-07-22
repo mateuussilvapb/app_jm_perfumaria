@@ -11,7 +11,8 @@ public class CategoriaInUseException extends RuntimeException {
         StringBuilder message = new StringBuilder();
         message.append("Categoria '")
                 .append(nomeCategoria)
-                .append("' não pode ser deletada. Ela está vinculada aos seguintes produtos:\n");
+                .append("' não pode ser deletada/desabilitada. Ela está vinculada aos seguintes " +
+                        "produtos:\n");
 
         nomesProdutos.forEach(produto -> message.append("- ").append(produto).append("\n"));
 

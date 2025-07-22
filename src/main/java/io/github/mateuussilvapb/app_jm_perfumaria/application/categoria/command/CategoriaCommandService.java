@@ -23,12 +23,7 @@ public class CategoriaCommandService {
     private final ICategoriaRepository categoriaRepository;
 
     public void deleteById(Long id) {
-        var categoria = categoriaQueryService.findById(id);
-        var existsProdutos = produtoQueryService.findByCategoria(categoria);
-        if (!existsProdutos.isEmpty()) {
-            var nomesProdutos = existsProdutos.stream().map(Produto::getNome).toList();
-            throw new CategoriaInUseException(categoria.getNome(), nomesProdutos);
-        }
+        var categoria = validarCategoriaParaRemocaoOuDesabilitacao(id);
         this.categoriaRepository.deleteById(categoria.getId());
     }
 
@@ -57,10 +52,22 @@ public class CategoriaCommandService {
         var categoria = categoriaQueryService.findById(id);
         Status statusAtual = categoria.getStatus();
         if (statusAtual.equals(Status.ATIVO)) {
+            this.validarCategoriaParaRemocaoOuDesabilitacao(id);
             categoria.setStatus(Status.INATIVO);
         } else {
             categoria.setStatus(Status.ATIVO);
         }
+
         return categoriaRepository.save(categoria);
+    }
+
+    private Categoria validarCategoriaParaRemocaoOuDesabilitacao(Long id) {
+        var categoria = categoriaQueryService.findById(id);
+        var existsProdutos = produtoQueryService.findByCategoria(categoria);
+        if (!existsProdutos.isEmpty()) {
+            var nomesProdutos = existsProdutos.stream().map(Produto::getNome).toList();
+            throw new CategoriaInUseException(categoria.getNome(), nomesProdutos);
+        }
+        return categoria;
     }
 }
