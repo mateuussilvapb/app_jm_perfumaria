@@ -1,9 +1,12 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.command;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaInUseException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaSameNameException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.query.CategoriaQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.CreateUpdateDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.ProdutoQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.categoria.repository.ICategoriaRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +19,16 @@ import java.util.ArrayList;
 public class CategoriaCommandService {
 
     private final CategoriaQueryService categoriaQueryService;
+    private final ProdutoQueryService produtoQueryService;
     private final ICategoriaRepository categoriaRepository;
 
     public void deleteById(Long id) {
         var categoria = categoriaQueryService.findById(id);
+        var existsProdutos = produtoQueryService.findByCategoria(categoria);
+        if (!existsProdutos.isEmpty()) {
+            var nomesProdutos = existsProdutos.stream().map(Produto::getNome).toList();
+            throw new CategoriaInUseException(categoria.getNome(), nomesProdutos);
+        }
         this.categoriaRepository.deleteById(categoria.getId());
     }
 
