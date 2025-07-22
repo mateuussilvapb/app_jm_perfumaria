@@ -37,4 +37,10 @@ public class MarcaCommandController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PatchMapping("/toogleStatus/{id}")
+    @RolesAllowed({"admin", "manager"})
+    public ResponseEntity<Marca> toogleStatus(@PathVariable String id) {
+        Marca marca = marcaCommandService.toogleStatus(Long.parseLong(id));
+        return new ResponseEntity<>(marca, HttpStatus.OK);
+    }
 }

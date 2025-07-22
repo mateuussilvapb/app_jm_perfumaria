@@ -47,4 +47,15 @@ public class MarcaCommandService {
                 Status.ATIVO, new ArrayList<>());
         return marcaRepository.save(marca);
     }
+
+    public Marca toogleStatus(Long id) {
+        var marca = marcaQueryService.findById(id);
+        Status statusAtual = marca.getStatus();
+        if (statusAtual.equals(Status.ATIVO)) {
+            marca.setStatus(Status.INATIVO);
+        } else {
+            marca.setStatus(Status.ATIVO);
+        }
+        return marcaRepository.save(marca);
+    }
 }
