@@ -22,7 +22,7 @@ public class MarcaQueryController {
     @GetMapping
     @RolesAllowed({"admin", "employee", "manager"})
     public ResponseEntity<List<Marca>> getAll() {
-        List<Marca> marcas = marcaQueryService.findAllAtivos();
+        List<Marca> marcas = marcaQueryService.findAll();
         return new ResponseEntity<>(marcas, HttpStatus.OK);
     }
 
@@ -66,5 +66,11 @@ public class MarcaQueryController {
     @RolesAllowed({"admin", "employee", "manager"})
     public ResponseEntity<List<AutocompleteDTO>> getInativosByTermAutocomplete(@RequestParam(name = "term", required = false) String searchTerm) {
         return new ResponseEntity<>(marcaQueryService.findAllToAutocompleteByTermAndStatus(searchTerm, Status.INATIVO), HttpStatus.OK);
+    }
+
+    @GetMapping("/searchByTermAndStatus")
+    @RolesAllowed({"admin", "employee", "manager"})
+    public ResponseEntity<List<Marca>> getByTermAndStatus(@RequestParam(name = "term", required = false) String searchTerm, @RequestParam(name = "status", required = false) Status status) {
+        return new ResponseEntity<>(marcaQueryService.findAllByTermAndStatus(searchTerm, status), HttpStatus.OK);
     }
 }

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,10 @@ public class MarcaQueryService {
 
 
     private final IMarcaRepository marcaRepository;
+
+    public List<Marca> findAll() {
+        return this.marcaRepository.findAll();
+    }
 
     public List<Marca> findAllAtivos() {
         return this.marcaRepository.findAllByStatus(Status.ATIVO);
@@ -32,14 +37,22 @@ public class MarcaQueryService {
 
         if (status == Status.ATIVO) {
             marcas = this.findAllAtivos();
-        } else {
+        } else if (status == Status.INATIVO) {
             marcas = this.findAllInativos();
+        } else {
+            marcas = this.findAll();
         }
 
         if (StringUtils.isNotBlank(searchTerm)) {
             marcas =
                     marcas.stream().filter(marca -> marca.matchSearchTerm(searchTerm)).collect(Collectors.toList());
         }
+
+        marcas.sort(
+                Comparator
+                        .comparing((Marca m) -> m.getStatus() == Status.ATIVO ? 0 : 1)
+                        .thenComparing(Marca::getNome, String.CASE_INSENSITIVE_ORDER)
+        );
 
         return marcas;
     }
