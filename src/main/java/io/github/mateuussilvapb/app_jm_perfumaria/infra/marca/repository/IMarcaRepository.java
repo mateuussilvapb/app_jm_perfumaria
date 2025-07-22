@@ -1,7 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.infra.marca.repository;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
-import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,5 +30,5 @@ public interface IMarcaRepository extends JpaRepository<Marca, Long> {
     List<AutocompleteDTO> findAllByStatusAndTermoAutocompleteDTO(@Param("termo") String termo, @Param("status") Status status);
 
     @Query("SELECT m FROM Marca m WHERE m.nome = :nome")
-    Optional<Categoria> findByNome(@Param("nome") String nome);
+    Optional<Marca> findByNome(@Param("nome") String nome);
 }
