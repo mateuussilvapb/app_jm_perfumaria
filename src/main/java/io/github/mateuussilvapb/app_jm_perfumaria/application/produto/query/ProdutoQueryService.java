@@ -5,6 +5,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.Produt
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.ProdutoNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.specification.ProdutoSpecification;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.repository.IProdutoRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
@@ -35,5 +36,9 @@ public class ProdutoQueryService {
 
     public List<Produto> findByCategoria(Categoria categoria) {
         return produtoRepository.findByCategoria(categoria);
+    }
+
+    public List<Produto> findByMarca(Marca marca) {
+        return produtoRepository.findByMarca(marca);
     }
 }

@@ -2,6 +2,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.repository;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
@@ -40,6 +41,9 @@ public interface IProdutoRepository extends JpaRepository<Produto, Long>, JpaSpe
     @Query("SELECT p FROM Produto p WHERE p.nome = :nome")
     Optional<Produto> findByNome(@Param("nome") String nome);
 
-    @Query("SELECT p FROM  Produto p WHERE p.categoria = :categoria")
+    @Query("SELECT p FROM Produto p WHERE p.categoria = :categoria")
     List<Produto> findByCategoria(@Param("categoria") Categoria categoria);
+
+    @Query("SELECT p FROM Produto p WHERE p.marca = :marca")
+    List<Produto> findByMarca(@Param("marca") Marca marca);
 }
