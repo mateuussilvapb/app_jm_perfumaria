@@ -51,9 +51,9 @@ public class KeycloakUserController {
         boolean result = keycloakUserService.createKeycloakUserWithAppRoles(userDTO.getUsername(), userDTO.getEmail(), userDTO.getFirstName(), userDTO.getLastName(), userDTO.getPassword(), userDTO.getRoles());
 
         if (result) {
-            return new ResponseEntity<>("User created successfully", HttpStatus.CREATED);
+            return new ResponseEntity<>("Usuário criado com sucesso.", HttpStatus.CREATED);
         } else {
-            return new ResponseEntity<>("Failed to create user", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Falha ao criar usuário.", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -62,9 +62,9 @@ public class KeycloakUserController {
         boolean result = keycloakUserService.assignApplicationRolesToUser(userId, roles);
 
         if (result) {
-            return new ResponseEntity<>("Roles assigned successfully", HttpStatus.OK);
+            return new ResponseEntity<>("Permissões assinadas com sucesso.", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Failed to assign roles", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Falha ao assinar permissões.", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -74,9 +74,9 @@ public class KeycloakUserController {
         boolean result = keycloakUserService.updateKeycloakUser(userId, userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getRoles());
 
         if (result) {
-            return new ResponseEntity<>("User updated successfully", HttpStatus.OK);
+            return new ResponseEntity<>("Usuário alterado com sucesso.", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Failed to update user", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Falha ao alterar usuário.", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -85,15 +85,15 @@ public class KeycloakUserController {
         boolean result = keycloakUserService.deleteKeycloakUser(userId);
 
         if (result) {
-            return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
+            return new ResponseEntity<>("Usuário removido com sucesso.", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Failed to delete user", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Falha ao remover usuário.", HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/senha")
     public ResponseEntity<?> alterarSenha(@RequestBody UpdatePasswordDTO data) {
-        boolean alterada = keycloakUserService.updateLoggedUserPassword(data.getNewPassword());
+        boolean alterada = keycloakUserService.updateLoggedUserPassword(data);
         if (alterada) {
             return ResponseEntity.ok().body("Senha alterada com sucesso.");
         } else {

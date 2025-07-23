@@ -1,5 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.IncorrectCurrentPasswordException;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.UserRoles;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.admin.client.Keycloak;
@@ -262,19 +263,41 @@ public class KeycloakUserService {
 
     }
 
-    public boolean updateLoggedUserPassword(String newPassword) {
+    public boolean updateLoggedUserPassword(UpdatePasswordDTO data) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName(); // geralmente o 'preferred_username'
+            String userId = authentication.getName();
 
             Keycloak keycloak = getKeycloakInstance();
             RealmResource realmResource = keycloak.realm(realm);
+            UsersResource usersResource = realmResource.users();
+
+            // Buscar o usuário pelo ID para pegar o username
+            UserRepresentation user = usersResource.get(userId).toRepresentation();
+            String username = user.getUsername();
+
+            // Valida se a senha atual informada está correta.
+            try {
+                Keycloak keycloakAuth = KeycloakBuilder.builder()
+                        .serverUrl(authServerUrl)
+                        .realm(realm)
+                        .clientId(clientId)
+                        .clientSecret(clientSecret)
+                        .username(username)
+                        .password(data.getCurrentPassword())
+                        .build();
+
+                // Apenas chamar token() já força a validação
+                keycloakAuth.tokenManager().getAccessToken();
+            } catch (Exception ex) {
+                throw new IncorrectCurrentPasswordException();
+            }
             UserResource userResource = realmResource.users().get(userId);
 
             CredentialRepresentation credential = new CredentialRepresentation();
             credential.setType(CredentialRepresentation.PASSWORD);
             credential.setTemporary(false);
-            credential.setValue(newPassword);
+            credential.setValue(data.getNewPassword());
 
             userResource.resetPassword(credential);
             return true;
