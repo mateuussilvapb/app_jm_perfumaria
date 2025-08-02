@@ -3,10 +3,8 @@ package io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user;
 import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.IncorrectCurrentPasswordException;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.UserRoles;
 import jakarta.annotation.security.RolesAllowed;
-import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,14 +19,13 @@ public class KeycloakUserController {
     private KeycloakUserService keycloakUserService;
 
     @GetMapping
-    public ResponseEntity<List<UserRepresentation>> getUsers() {
-        List<UserRepresentation> users = keycloakUserService.getKeycloakUsers();
-        return new ResponseEntity<>(users, HttpStatus.OK);
+    public ResponseEntity<List<UserResponseDTO>> getUsers() {
+        return new ResponseEntity<>(keycloakUserService.getKeycloakUsers(), HttpStatus.OK);
     }
 
-    @GetMapping("/{username}")
-    public ResponseEntity<UserRepresentation> getUserByUsername(@PathVariable String username) {
-        UserRepresentation user = keycloakUserService.getKeycloakUserByUsername(username);
+    @GetMapping("/{searchParam}")
+    public ResponseEntity<List<UserResponseDTO>> getUserBySearchParam(@PathVariable String searchParam) {
+        List<UserResponseDTO> user = keycloakUserService.getKeycloakUserBySearchParam(searchParam);
         if (user != null) {
             return new ResponseEntity<>(user, HttpStatus.OK);
         } else {

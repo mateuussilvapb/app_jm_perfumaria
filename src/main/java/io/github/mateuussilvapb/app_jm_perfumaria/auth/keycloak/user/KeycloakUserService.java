@@ -18,8 +18,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class KeycloakUserService {
@@ -157,21 +161,75 @@ public class KeycloakUserService {
         return createKeycloakUser(username, email, firstName, lastName, password, roleNames);
     }
 
-    public List<UserRepresentation> getKeycloakUsers() {
+    public List<UserResponseDTO> getKeycloakUsers() {
         Keycloak keycloak = getKeycloakInstance();
         RealmResource realmResource = keycloak.realm(realm);
         UsersResource usersResource = realmResource.users();
 
-        return usersResource.list();
+        return usersResource.list().stream().map(userRepresentation ->
+                new UserResponseDTO(
+                        userRepresentation.getId(),
+                        userRepresentation.getUsername(),
+                        userRepresentation.getEmail(),
+                        userRepresentation.getFirstName(),
+                        userRepresentation.getLastName(),
+                        getUserAppRoles(userRepresentation.getId())
+                )
+        ).toList();
     }
 
-    public UserRepresentation getKeycloakUserByUsername(String username) {
+    public List<UserResponseDTO> getKeycloakUserBySearchParam(String searchTerm) {
+        if (searchTerm == null || searchTerm.isBlank()) {
+            return List.of();
+        }
+
+        searchTerm = searchTerm.trim().toLowerCase();
+        searchTerm = searchTerm.replaceAll(" ", "");
+
+        // Combina os dois resultados e remove duplicados pelo ID
+        Map<String, UserRepresentation> usersById = Stream.concat(
+                        getKeycloakUserByUsername(searchTerm).stream(),
+                        getKeycloakUserByEmail(searchTerm).stream()
+                )
+                .collect(Collectors.toMap(
+                        UserRepresentation::getId,
+                        Function.identity(),
+                        (existing, replacement) -> existing, // em caso de duplicata, mantém o primeiro
+                        LinkedHashMap::new // mantém a ordem de inserção
+                ));
+
+        if (usersById.isEmpty()) {
+            return List.of();
+        }
+
+        return usersById.values().stream()
+                .map(user -> new UserResponseDTO(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        getUserAppRoles(user.getId())
+                ))
+                .toList();
+    }
+
+    public List<UserRepresentation> getKeycloakUserByUsername(String username) {
         Keycloak keycloak = getKeycloakInstance();
         RealmResource realmResource = keycloak.realm(realm);
         UsersResource usersResource = realmResource.users();
 
-        List<UserRepresentation> users = usersResource.search(username, true);
-        return users.isEmpty() ? null : users.getFirst();
+        List<UserRepresentation> users = usersResource.search(username, false);
+        return users.isEmpty() ? new ArrayList<>() : users;
+    }
+
+    public List<UserRepresentation> getKeycloakUserByEmail(String email) {
+        Keycloak keycloak = getKeycloakInstance();
+        RealmResource realmResource = keycloak.realm(realm);
+        UsersResource usersResource = realmResource.users();
+
+        List<UserRepresentation> users = usersResource.searchByEmail(email, false);
+        return users.isEmpty() ? new ArrayList<>() : users;
     }
 
     public boolean updateKeycloakUser(String userId, String firstName, String lastName, String email, List<UserRoles> userRoles) {
@@ -211,27 +269,40 @@ public class KeycloakUserService {
         try {
             Keycloak keycloak = getKeycloakInstance();
             RealmResource realmResource = keycloak.realm(realm);
-            UserResource userResource = realmResource.users().get(userId);
 
-            // Obtem os roles de nível de realm atribuídos ao usuário
-            List<RoleRepresentation> realmRoles = userResource.roles().realmLevel().listEffective();
+            // Buscar clientId (UUID interno) pelo nome legível
+            ClientRepresentation client = realmResource.clients()
+                    .findByClientId(clientId)
+                    .getFirst();
 
-            // Converte para UserRoles, filtrando apenas os que estão definidos no enum
+            String clientUuid = client.getId();
+
+            // Obter client roles do usuário
+            List<RoleRepresentation> clientRoles = realmResource
+                    .users()
+                    .get(userId)
+                    .roles()
+                    .clientLevel(clientUuid)
+                    .listEffective();
+
+            // Converter para enum UserRoles
             List<UserRoles> userRoles = new ArrayList<>();
-            for (RoleRepresentation role : realmRoles) {
+            for (RoleRepresentation role : clientRoles) {
                 try {
-                    userRoles.add(UserRoles.valueOf(role.getName()));
+                    userRoles.add(UserRoles.valueOf(role.getName())); // cuidado com nomes
                 } catch (IllegalArgumentException e) {
-                    // Ignora roles que não pertencem ao enum UserRoles
+                    System.out.println("Ignorando role não mapeada no enum: " + role.getName());
                 }
             }
 
             return userRoles;
+
         } catch (Exception e) {
             e.printStackTrace();
-            return List.of(); // Retorna lista vazia em caso de erro
+            return List.of();
         }
     }
+
 
     public boolean userHasRole(String userId, UserRoles role) {
         try {
@@ -278,14 +349,7 @@ public class KeycloakUserService {
 
             // Valida se a senha atual informada está correta.
             try {
-                Keycloak keycloakAuth = KeycloakBuilder.builder()
-                        .serverUrl(authServerUrl)
-                        .realm(realm)
-                        .clientId(clientId)
-                        .clientSecret(clientSecret)
-                        .username(username)
-                        .password(data.getCurrentPassword())
-                        .build();
+                Keycloak keycloakAuth = KeycloakBuilder.builder().serverUrl(authServerUrl).realm(realm).clientId(clientId).clientSecret(clientSecret).username(username).password(data.getCurrentPassword()).build();
 
                 // Apenas chamar token() já força a validação
                 keycloakAuth.tokenManager().getAccessToken();
