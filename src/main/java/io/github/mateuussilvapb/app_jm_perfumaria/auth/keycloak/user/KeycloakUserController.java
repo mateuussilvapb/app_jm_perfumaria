@@ -1,10 +1,12 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.IncorrectCurrentPasswordException;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.UserRoles;
 import jakarta.annotation.security.RolesAllowed;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -92,12 +94,12 @@ public class KeycloakUserController {
     }
 
     @PutMapping("/senha")
-    public ResponseEntity<?> alterarSenha(@RequestBody UpdatePasswordDTO data) {
+    public ResponseEntity<Void> alterarSenha(@RequestBody UpdatePasswordDTO data) {
         boolean alterada = keycloakUserService.updateLoggedUserPassword(data);
         if (alterada) {
-            return ResponseEntity.ok().body("Senha alterada com sucesso.");
+            return new ResponseEntity<>(null, HttpStatus.OK);
         } else {
-            return ResponseEntity.badRequest().body("Erro ao alterar senha.");
+            throw new IncorrectCurrentPasswordException();
         }
     }
 }

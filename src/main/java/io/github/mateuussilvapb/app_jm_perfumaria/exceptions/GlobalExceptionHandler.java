@@ -12,6 +12,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.M
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.*;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.exceptions.ProdutoEntradaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.exceptions.SaidaEstoqueNotFoundException;
+import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.IncorrectCurrentPasswordException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -135,6 +136,13 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ValorDescontoInvalidoException.class)
     public ResponseEntity<ErrorResponse> handleValorDescontoInvalido(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IncorrectCurrentPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleIncorrectCurrentPassword(Exception ex) {
         log.error(ex.getMessage(), ex);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
     }
