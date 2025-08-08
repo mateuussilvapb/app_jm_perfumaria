@@ -1,6 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.IncorrectCurrentPasswordException;
+import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.SelfToggleStatusException;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.UserRoles;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.admin.client.Keycloak;
@@ -118,7 +119,7 @@ public class KeycloakUserService {
             // Atribuir roles do tipo client
             List<ClientRepresentation> clients = realmResource.clients().findByClientId(clientId);
             if (!clients.isEmpty()) {
-                String clientUuid = clients.get(0).getId();
+                String clientUuid = clients.getFirst().getId();
                 List<RoleRepresentation> clientRoles = realmResource.clients().get(clientUuid).roles().list();
 
                 List<RoleRepresentation> clientRolesToAdd = new ArrayList<>();
@@ -166,52 +167,27 @@ public class KeycloakUserService {
         RealmResource realmResource = keycloak.realm(realm);
         UsersResource usersResource = realmResource.users();
 
-        return usersResource.list().stream().map(userRepresentation ->
-                new UserResponseDTO(
-                        userRepresentation.getId(),
-                        userRepresentation.getUsername(),
-                        userRepresentation.getEmail(),
-                        userRepresentation.getFirstName(),
-                        userRepresentation.getLastName(),
-                        getUserAppRoles(userRepresentation.getId())
-                )
-        ).toList();
+        return usersResource.list().stream().map(userRepresentation -> new UserResponseDTO(userRepresentation.getId(), userRepresentation.getUsername(), userRepresentation.getEmail(), userRepresentation.getFirstName(), userRepresentation.getLastName(), userRepresentation.isEnabled(), getUserAppRoles(userRepresentation.getId()))).toList();
     }
 
     public List<UserResponseDTO> getKeycloakUserBySearchParam(String searchTerm) {
         if (searchTerm == null || searchTerm.isBlank()) {
-            return List.of();
+            return this.getKeycloakUsers();
         }
 
         searchTerm = searchTerm.trim().toLowerCase();
         searchTerm = searchTerm.replaceAll(" ", "");
 
         // Combina os dois resultados e remove duplicados pelo ID
-        Map<String, UserRepresentation> usersById = Stream.concat(
-                        getKeycloakUserByUsername(searchTerm).stream(),
-                        getKeycloakUserByEmail(searchTerm).stream()
-                )
-                .collect(Collectors.toMap(
-                        UserRepresentation::getId,
-                        Function.identity(),
-                        (existing, replacement) -> existing, // em caso de duplicata, mantém o primeiro
-                        LinkedHashMap::new // mantém a ordem de inserção
-                ));
+        Map<String, UserRepresentation> usersById = Stream.concat(getKeycloakUserByUsername(searchTerm).stream(), getKeycloakUserByEmail(searchTerm).stream()).collect(Collectors.toMap(UserRepresentation::getId, Function.identity(), (existing, replacement) -> existing, // em caso de duplicata, mantém o primeiro
+                LinkedHashMap::new // mantém a ordem de inserção
+        ));
 
         if (usersById.isEmpty()) {
             return List.of();
         }
 
-        return usersById.values().stream()
-                .map(user -> new UserResponseDTO(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getFirstName(),
-                        user.getLastName(),
-                        getUserAppRoles(user.getId())
-                ))
-                .toList();
+        return usersById.values().stream().map(user -> new UserResponseDTO(user.getId(), user.getUsername(), user.getEmail(), user.getFirstName(), user.getLastName(), user.isEnabled(), getUserAppRoles(user.getId()))).toList();
     }
 
     public List<UserRepresentation> getKeycloakUserByUsername(String username) {
@@ -271,19 +247,12 @@ public class KeycloakUserService {
             RealmResource realmResource = keycloak.realm(realm);
 
             // Buscar clientId (UUID interno) pelo nome legível
-            ClientRepresentation client = realmResource.clients()
-                    .findByClientId(clientId)
-                    .getFirst();
+            ClientRepresentation client = realmResource.clients().findByClientId(clientId).getFirst();
 
             String clientUuid = client.getId();
 
             // Obter client roles do usuário
-            List<RoleRepresentation> clientRoles = realmResource
-                    .users()
-                    .get(userId)
-                    .roles()
-                    .clientLevel(clientUuid)
-                    .listEffective();
+            List<RoleRepresentation> clientRoles = realmResource.users().get(userId).roles().clientLevel(clientUuid).listEffective();
 
             // Converter para enum UserRoles
             List<UserRoles> userRoles = new ArrayList<>();
@@ -335,40 +304,61 @@ public class KeycloakUserService {
     }
 
     public boolean updateLoggedUserPassword(UpdatePasswordDTO data) {
+        UserRepresentation user = getLoggedUserRepresentation();
+        String userId = user.getId();
+        String username = user.getUsername();
+
+        Keycloak keycloak = getKeycloakInstance();
+        RealmResource realmResource = keycloak.realm(realm);
+
+        // Valida se a senha atual informada está correta.
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
+            Keycloak keycloakAuth = KeycloakBuilder.builder().serverUrl(authServerUrl).realm(realm).clientId(clientId).clientSecret(clientSecret).username(username).password(data.getCurrentPassword()).build();
 
-            Keycloak keycloak = getKeycloakInstance();
-            RealmResource realmResource = keycloak.realm(realm);
-            UsersResource usersResource = realmResource.users();
-
-            // Buscar o usuário pelo ID para pegar o username
-            UserRepresentation user = usersResource.get(userId).toRepresentation();
-            String username = user.getUsername();
-
-            // Valida se a senha atual informada está correta.
-            try {
-                Keycloak keycloakAuth = KeycloakBuilder.builder().serverUrl(authServerUrl).realm(realm).clientId(clientId).clientSecret(clientSecret).username(username).password(data.getCurrentPassword()).build();
-
-                // Apenas chamar token() já força a validação
-                keycloakAuth.tokenManager().getAccessToken();
-            } catch (Exception ex) {
-                throw new IncorrectCurrentPasswordException();
-            }
-            UserResource userResource = realmResource.users().get(userId);
-
-            CredentialRepresentation credential = new CredentialRepresentation();
-            credential.setType(CredentialRepresentation.PASSWORD);
-            credential.setTemporary(false);
-            credential.setValue(data.getNewPassword());
-
-            userResource.resetPassword(credential);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            // Apenas chamar token() já força a validação
+            keycloakAuth.tokenManager().getAccessToken();
+        } catch (Exception ex) {
+            throw new IncorrectCurrentPasswordException();
         }
+        UserResource userResource = realmResource.users().get(userId);
+
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setTemporary(false);
+        credential.setValue(data.getNewPassword());
+
+        userResource.resetPassword(credential);
+        return true;
+    }
+
+    private UserRepresentation getLoggedUserRepresentation() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        Keycloak keycloak = getKeycloakInstance();
+        RealmResource realmResource = keycloak.realm(realm);
+        UsersResource usersResource = realmResource.users();
+
+        return usersResource.get(userId).toRepresentation();
+    }
+
+    public void toggleUserStatus(String userId) {
+        UserRepresentation loggedUser = getLoggedUserRepresentation();
+
+        if (loggedUser.getId().equals(userId)) {
+            throw new SelfToggleStatusException();
+        }
+
+        Keycloak keycloak = getKeycloakInstance();
+        RealmResource realmResource = keycloak.realm(realm);
+        UsersResource usersResource = realmResource.users();
+
+        UserResource userResource = usersResource.get(userId);
+        UserRepresentation targetUser = userResource.toRepresentation();
+
+        targetUser.setEnabled(!targetUser.isEnabled());
+        userResource.update(targetUser);
+
     }
 
 }

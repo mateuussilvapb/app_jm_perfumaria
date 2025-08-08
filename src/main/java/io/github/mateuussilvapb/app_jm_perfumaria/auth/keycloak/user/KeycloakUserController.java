@@ -1,6 +1,5 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.IncorrectCurrentPasswordException;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.UserRoles;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +22,8 @@ public class KeycloakUserController {
         return new ResponseEntity<>(keycloakUserService.getKeycloakUsers(), HttpStatus.OK);
     }
 
-    @GetMapping("/{searchParam}")
-    public ResponseEntity<List<UserResponseDTO>> getUserBySearchParam(@PathVariable String searchParam) {
+    @GetMapping("/searchByParam")
+    public ResponseEntity<List<UserResponseDTO>> getUserBySearchParam(@RequestParam(name = "searchParam", required = false) String searchParam) {
         List<UserResponseDTO> user = keycloakUserService.getKeycloakUserBySearchParam(searchParam);
         if (user != null) {
             return new ResponseEntity<>(user, HttpStatus.OK);
@@ -92,11 +91,13 @@ public class KeycloakUserController {
 
     @PutMapping("/senha")
     public ResponseEntity<Void> alterarSenha(@RequestBody UpdatePasswordDTO data) {
-        boolean alterada = keycloakUserService.updateLoggedUserPassword(data);
-        if (alterada) {
-            return new ResponseEntity<>(null, HttpStatus.OK);
-        } else {
-            throw new IncorrectCurrentPasswordException();
-        }
+        keycloakUserService.updateLoggedUserPassword(data);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/toggleStatus")
+    public ResponseEntity<Void> toggleStatusUserStatus(@PathVariable String id) {
+        keycloakUserService.toggleUserStatus(id);
+        return ResponseEntity.ok().build();
     }
 }

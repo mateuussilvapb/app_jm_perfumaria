@@ -16,5 +16,6 @@ public class UserResponseDTO {
     private String email;
     private String firstName;
     private String lastName;
+    private Boolean enabled;
     private List<UserRoles> roles;
 }
