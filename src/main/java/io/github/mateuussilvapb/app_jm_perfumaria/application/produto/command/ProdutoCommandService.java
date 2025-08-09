@@ -1,5 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaInUseException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.query.CategoriaQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.query.MarcaQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.CreateUpdateProdutoDTO;
@@ -11,6 +12,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IPr
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.ProdutoQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.config.persistence.SequenceService;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.repository.IProdutoRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.Constants;
@@ -38,6 +40,7 @@ public class ProdutoCommandService {
         produto.setStatus(Status.INATIVO);
         produto.setSituacao(Situacao.CADASTRO_FINALIZADO);
         this.update(id, produtoToProdutoDTOMapper.toDto(produto));
+        produtoRepository.deleteById(produto.getId());
     }
 
     public Produto update(Long id, CreateUpdateProdutoDTO updatedProduto) {
@@ -99,4 +102,15 @@ public class ProdutoCommandService {
         produtoRepository.save(produto);
     }
 
+    public Produto toogleStatus(Long id) {
+        var produto = produtoQueryService.findById(id);
+        Status statusAtual = produto.getStatus();
+        if (statusAtual.equals(Status.ATIVO)) {
+            produto.setStatus(Status.INATIVO);
+        } else {
+            produto.setStatus(Status.ATIVO);
+        }
+
+        return produtoRepository.save(produto);
+    }
 }

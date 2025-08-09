@@ -2,6 +2,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.produto.controlle
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command.ProdutoCommandService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.CreateUpdateProdutoDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import jakarta.annotation.security.RolesAllowed;
@@ -41,4 +42,10 @@ public class ProdutoCommandController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PatchMapping("/toogleStatus/{id}")
+    @RolesAllowed({"admin", "manager"})
+    public ResponseEntity<Produto> toogleStatus(@PathVariable String id) {
+        Produto produto = produtoCommandService.toogleStatus(Long.parseLong(id));
+        return new ResponseEntity<>(produto, HttpStatus.OK);
+    }
 }
