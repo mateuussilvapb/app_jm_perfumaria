@@ -12,9 +12,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.M
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.*;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.exceptions.ProdutoEntradaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.exceptions.SaidaEstoqueNotFoundException;
-import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.IncorrectCurrentPasswordException;
-import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.SelfToggleStatusException;
-import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.ToggleUserStatusException;
+import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -159,6 +157,27 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(SelfToggleStatusException.class)
     public ResponseEntity<ErrorResponse> handleSelfToggleStatusException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(CreateUserException.class)
+    public ResponseEntity<ErrorResponse> handleCreateUserException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(UpdateUserException.class)
+    public ResponseEntity<ErrorResponse> handleUpdateUserException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(Exception ex) {
         log.error(ex.getMessage(), ex);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
     }

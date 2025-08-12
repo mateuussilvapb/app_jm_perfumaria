@@ -2,6 +2,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.IncorrectCurrentPasswordException;
 import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.SelfToggleStatusException;
+import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.UserNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.UserRoles;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.admin.client.Keycloak;
@@ -9,25 +10,24 @@ import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.idm.ClientRepresentation;
-import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.representations.idm.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
 public class KeycloakUserService {
+
+    private static final Logger log = LoggerFactory.getLogger(KeycloakUserService.class);
+
     @Value("${keycloak.auth-server-url}")
     private String authServerUrl;
 
@@ -46,17 +46,25 @@ public class KeycloakUserService {
     @Value("${keycloak.admin-password}")
     private String adminPassword;
 
-    public Keycloak getKeycloakInstance() {
-        return KeycloakBuilder.builder().serverUrl(authServerUrl).realm("master") // The realm for admin operations is always "master"
-                .clientId("admin-cli").username(adminUsername).password(adminPassword).build();
+    // ===== Helpers para instâncias Keycloak =====
+    private Keycloak getKeycloakInstance() {
+        return KeycloakBuilder.builder().serverUrl(authServerUrl).realm("master").clientId("admin-cli").username(adminUsername).password(adminPassword).build();
     }
 
-    public boolean createKeycloakUser(String username, String email, String firstName, String lastName, String password, List<String> roles) {
-        Keycloak keycloak = getKeycloakInstance();
-        RealmResource realmResource = keycloak.realm(realm);
-        UsersResource usersResource = realmResource.users();
+    private RealmResource getRealmResource() {
+        return getKeycloakInstance().realm(realm);
+    }
 
-        // Define user
+    private UsersResource getUsersResource() {
+        return getRealmResource().users();
+    }
+
+    private UserResource getUserResource(String userId) {
+        return getUsersResource().get(userId);
+    }
+
+    // ===== Criação de usuário =====
+    public boolean createKeycloakUser(String username, String email, String firstName, String lastName, String password, List<String> roles) {
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
         user.setUsername(username);
@@ -65,300 +73,224 @@ public class KeycloakUserService {
         user.setLastName(lastName);
         user.setEmailVerified(true);
 
-        // Create user
-        Response response = usersResource.create(user);
-        if (response.getStatus() == 201) {
-            String userId = getCreatedId(response);
+        Response response = getUsersResource().create(user);
+        if (response.getStatus() != 201) return false;
 
-            // Define password credential
-            CredentialRepresentation passwordCred = new CredentialRepresentation();
-            passwordCred.setTemporary(false);
-            passwordCred.setType(CredentialRepresentation.PASSWORD);
-            passwordCred.setValue(password);
+        String userId = getCreatedId(response);
+        setPassword(userId, password);
+        removeDefaultRealmRolesFromUser(userId);
 
-            // Set password credential
-            usersResource.get(userId).resetPassword(passwordCred);
-
-            removeDefaultRealmRolesFromUser(userId);
-
-            // Assign realm roles to user if provided
-            if (roles != null && !roles.isEmpty()) {
-                assignRolesToUser(userId, roles);
-            }
-
-            return true;
-        } else {
-            return false;
+        if (roles != null && !roles.isEmpty()) {
+            assignRolesToUser(userId, roles);
         }
+        return true;
     }
 
-    /**
-     * Simpler overload method without roles
-     */
     public boolean createKeycloakUser(String username, String email, String firstName, String lastName, String password) {
         return createKeycloakUser(username, email, firstName, lastName, password, null);
     }
 
+    public boolean createKeycloakUserWithAppRoles(String username, String email, String firstName, String lastName, String password, List<UserRoles> roles) {
+        return createKeycloakUser(username, email, firstName, lastName, password, roles != null ? roles.stream().map(Enum::name).toList() : null);
+    }
+
+    // ===== Gestão de roles =====
     public boolean assignRolesToUser(String userId, List<String> roleNames) {
         try {
-            Keycloak keycloak = getKeycloakInstance();
-            RealmResource realmResource = keycloak.realm(realm);
-            UsersResource usersResource = realmResource.users();
-            UserResource userResource = usersResource.get(userId);
+            RealmResource realmResource = getRealmResource();
+            UserResource userResource = getUserResource(userId);
 
-            // Atribuir roles do tipo realm
-            List<RoleRepresentation> realmRoles = realmResource.roles().list();
-            List<RoleRepresentation> realmRolesToAdd = new ArrayList<>();
-            for (String roleName : roleNames) {
-                realmRoles.stream().filter(role -> role.getName().equals(roleName)).findFirst().ifPresent(realmRolesToAdd::add);
-            }
+            List<RoleRepresentation> realmRolesToAdd = findRoles(realmResource.roles().list(), roleNames);
             if (!realmRolesToAdd.isEmpty()) {
                 userResource.roles().realmLevel().add(realmRolesToAdd);
             }
 
-            // Atribuir roles do tipo client
             List<ClientRepresentation> clients = realmResource.clients().findByClientId(clientId);
             if (!clients.isEmpty()) {
                 String clientUuid = clients.getFirst().getId();
-                List<RoleRepresentation> clientRoles = realmResource.clients().get(clientUuid).roles().list();
-
-                List<RoleRepresentation> clientRolesToAdd = new ArrayList<>();
-                for (String roleName : roleNames) {
-                    clientRoles.stream().filter(role -> role.getName().equals(roleName)).findFirst().ifPresent(clientRolesToAdd::add);
-                }
-
+                List<RoleRepresentation> clientRolesToAdd = findRoles(realmResource.clients().get(clientUuid).roles().list(), roleNames);
                 if (!clientRolesToAdd.isEmpty()) {
                     userResource.roles().clientLevel(clientUuid).add(clientRolesToAdd);
                 }
             }
-
             return true;
-
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Erro ao atribuir roles para usuário {}", userId, e);
             return false;
         }
     }
 
-
-    /**
-     * Assign specific application roles to a user
-     */
     public boolean assignApplicationRolesToUser(String userId, List<UserRoles> roles) {
-        List<String> roleNames = roles.stream().map(Enum::name).toList();
-
-        return assignRolesToUser(userId, roleNames);
+        return assignRolesToUser(userId, roles.stream().map(Enum::name).toList());
     }
 
-    /**
-     * Create user with application-specific roles
-     */
-    public boolean createKeycloakUserWithAppRoles(String username, String email, String firstName, String lastName, String password, List<UserRoles> roles) {
-        List<String> roleNames = null;
-        if (roles != null) {
-            roleNames = roles.stream().map(Enum::name).toList();
-        }
-
-        return createKeycloakUser(username, email, firstName, lastName, password, roleNames);
-    }
-
-    public List<UserResponseDTO> getKeycloakUsers() {
-        Keycloak keycloak = getKeycloakInstance();
-        RealmResource realmResource = keycloak.realm(realm);
-        UsersResource usersResource = realmResource.users();
-
-        return usersResource.list().stream().map(userRepresentation -> new UserResponseDTO(userRepresentation.getId(), userRepresentation.getUsername(), userRepresentation.getEmail(), userRepresentation.getFirstName(), userRepresentation.getLastName(), userRepresentation.isEnabled(), getUserAppRoles(userRepresentation.getId()))).toList();
-    }
-
-    public List<UserResponseDTO> getKeycloakUserBySearchParam(String searchTerm) {
-        if (searchTerm == null || searchTerm.isBlank()) {
-            return this.getKeycloakUsers();
-        }
-
-        searchTerm = searchTerm.trim().toLowerCase();
-        searchTerm = searchTerm.replaceAll(" ", "");
-
-        // Combina os dois resultados e remove duplicados pelo ID
-        Map<String, UserRepresentation> usersById = Stream.concat(getKeycloakUserByUsername(searchTerm).stream(), getKeycloakUserByEmail(searchTerm).stream()).collect(Collectors.toMap(UserRepresentation::getId, Function.identity(), (existing, replacement) -> existing, // em caso de duplicata, mantém o primeiro
-                LinkedHashMap::new // mantém a ordem de inserção
-        ));
-
-        if (usersById.isEmpty()) {
-            return List.of();
-        }
-
-        return usersById.values().stream().map(user -> new UserResponseDTO(user.getId(), user.getUsername(), user.getEmail(), user.getFirstName(), user.getLastName(), user.isEnabled(), getUserAppRoles(user.getId()))).toList();
-    }
-
-    public List<UserRepresentation> getKeycloakUserByUsername(String username) {
-        Keycloak keycloak = getKeycloakInstance();
-        RealmResource realmResource = keycloak.realm(realm);
-        UsersResource usersResource = realmResource.users();
-
-        List<UserRepresentation> users = usersResource.search(username, false);
-        return users.isEmpty() ? new ArrayList<>() : users;
-    }
-
-    public List<UserRepresentation> getKeycloakUserByEmail(String email) {
-        Keycloak keycloak = getKeycloakInstance();
-        RealmResource realmResource = keycloak.realm(realm);
-        UsersResource usersResource = realmResource.users();
-
-        List<UserRepresentation> users = usersResource.searchByEmail(email, false);
-        return users.isEmpty() ? new ArrayList<>() : users;
-    }
-
-    public boolean updateKeycloakUser(String userId, String firstName, String lastName, String email, List<UserRoles> userRoles) {
-        Keycloak keycloak = getKeycloakInstance();
-        RealmResource realmResource = keycloak.realm(realm);
-        UsersResource usersResource = realmResource.users();
-
-        UserRepresentation user = usersResource.get(userId).toRepresentation();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setRealmRoles(userRoles.stream().map(String::valueOf).toList());
-
-        usersResource.get(userId).update(user);
-        return true;
-    }
-
-    public boolean deleteKeycloakUser(String userId) {
-        Keycloak keycloak = getKeycloakInstance();
-        RealmResource realmResource = keycloak.realm(realm);
-        UsersResource usersResource = realmResource.users();
-
-        usersResource.get(userId).remove();
-        return true;
-    }
-
-    // Helper method to extract the user ID from the response
-    private String getCreatedId(Response response) {
-        String location = response.getHeaderString("Location");
-        if (location != null) {
-            return location.substring(location.lastIndexOf("/") + 1);
-        }
-        return null;
+    private List<RoleRepresentation> findRoles(List<RoleRepresentation> availableRoles, List<String> roleNames) {
+        return roleNames.stream().map(name -> availableRoles.stream().filter(r -> r.getName().equals(name)).findFirst().orElse(null)).filter(Objects::nonNull).toList();
     }
 
     public List<UserRoles> getUserAppRoles(String userId) {
         try {
-            Keycloak keycloak = getKeycloakInstance();
-            RealmResource realmResource = keycloak.realm(realm);
-
-            // Buscar clientId (UUID interno) pelo nome legível
+            RealmResource realmResource = getRealmResource();
             ClientRepresentation client = realmResource.clients().findByClientId(clientId).getFirst();
-
             String clientUuid = client.getId();
 
-            // Obter client roles do usuário
-            List<RoleRepresentation> clientRoles = realmResource.users().get(userId).roles().clientLevel(clientUuid).listEffective();
-
-            // Converter para enum UserRoles
-            List<UserRoles> userRoles = new ArrayList<>();
-            for (RoleRepresentation role : clientRoles) {
+            List<RoleRepresentation> clientRoles = getUserResource(userId).roles().clientLevel(clientUuid).listEffective();
+            return clientRoles.stream().map(RoleRepresentation::getName).map(name -> {
                 try {
-                    userRoles.add(UserRoles.valueOf(role.getName())); // cuidado com nomes
+                    return UserRoles.valueOf(name);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Ignorando role não mapeada no enum: " + role.getName());
+                    log.warn("Ignorando role não mapeada: {}", name);
+                    return null;
                 }
-            }
-
-            return userRoles;
-
+            }).filter(Objects::nonNull).toList();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Erro ao buscar roles do usuário {}", userId, e);
             return List.of();
         }
     }
 
-
     public boolean userHasRole(String userId, UserRoles role) {
         try {
-            Keycloak keycloak = getKeycloakInstance();
-            RealmResource realmResource = keycloak.realm(realm);
-            UserResource userResource = realmResource.users().get(userId);
-
-            // Lista todos os roles efetivos do usuário
-            List<RoleRepresentation> realmRoles = userResource.roles().realmLevel().listEffective();
-
-            // Verifica se o nome do role está entre os retornados
-            return realmRoles.stream().anyMatch(r -> r.getName().equals(role.name()));
+            return getUserResource(userId).roles().realmLevel().listEffective().stream().anyMatch(r -> r.getName().equals(role.name()));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Erro ao verificar role {} no usuário {}", role, userId, e);
             return false;
         }
     }
 
-    private void removeDefaultRealmRolesFromUser(String userId) {
-        Keycloak keycloak = getKeycloakInstance();
-        RealmResource realmResource = keycloak.realm(realm);
-        UserResource userResource = realmResource.users().get(userId);
+    // ===== Busca de usuários =====
+    public List<UserResponseDTO> getKeycloakUsers() {
+        return getUsersResource().list().stream().map(this::toUserResponseDTO).toList();
+    }
 
-        List<String> defaultRoleNames = List.of("default-roles-jmperfumaria");
+    public UserResponseDTO getKeycloakUserById(String userId) {
+        return getKeycloakUsers().stream().filter(user -> user.getId().equals(userId)).findFirst().orElseThrow(UserNotFoundException::new);
+    }
 
-        List<RoleRepresentation> rolesToRemove = defaultRoleNames.stream().map(roleName -> realmResource.roles().get(roleName).toRepresentation()).collect(Collectors.toList());
+    public List<UserResponseDTO> getKeycloakUserBySearchParam(String searchTerm) {
+        if (searchTerm == null || searchTerm.isBlank()) return getKeycloakUsers();
 
-        userResource.roles().realmLevel().remove(rolesToRemove);
+        searchTerm = searchTerm.trim().toLowerCase().replaceAll(" ", "");
 
+        Map<String, UserRepresentation> usersById = Stream.concat(getKeycloakUserByUsername(searchTerm).stream(), getKeycloakUserByEmail(searchTerm).stream()).collect(Collectors.toMap(UserRepresentation::getId, Function.identity(), (u1, u2) -> u1, LinkedHashMap::new));
+
+        return usersById.values().stream().map(this::toUserResponseDTO).toList();
+    }
+
+    public List<UserRepresentation> getKeycloakUserByUsername(String username) {
+        return searchUsers(users -> users.search(username, false));
+    }
+
+    public List<UserRepresentation> getKeycloakUserByEmail(String email) {
+        return searchUsers(users -> users.searchByEmail(email, false));
+    }
+
+    private List<UserRepresentation> searchUsers(Function<UsersResource, List<UserRepresentation>> searchFn) {
+        List<UserRepresentation> users = searchFn.apply(getUsersResource());
+        return users.isEmpty() ? List.of() : users;
+    }
+
+    private UserResponseDTO toUserResponseDTO(UserRepresentation u) {
+        return new UserResponseDTO(u.getId(), u.getUsername(), u.getEmail(), u.getFirstName(), u.getLastName(), u.isEnabled(), getUserAppRoles(u.getId()));
+    }
+
+    // ===== Atualização e exclusão =====
+    public boolean updateKeycloakUser(String userId, UserResponseDTO dto) {
+        //Recupera o usuário pelo id;
+        UserRepresentation user = getUserResource(userId).toRepresentation();
+
+        //Seta as informações básicas
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setEmail(dto.getEmail());
+
+        //Remove todas as roles do usuário
+        removeAllRolesFromUser(userId);
+
+        //Assina as novas roles para o usuário
+        assignRolesToUser(userId, dto.getRoles().stream().map(Enum::name).toList());
+
+        //Atualiza o usuário com as novas informações
+        getUserResource(userId).update(user);
+        return true;
+    }
+
+    public void removeAllRolesFromUser(String userId) {
+        UserResource userResource = getUserResource(userId);
+
+        // 1) Remove roles de realm atribuídas diretamente ao usuário
+        List<RoleRepresentation> realmRolesAssigned = userResource.roles().realmLevel().listAll(); // roles atribuídas
+        if (realmRolesAssigned != null && !realmRolesAssigned.isEmpty()) {
+            userResource.roles().realmLevel().remove(realmRolesAssigned);
+            log.info("Removidas {} realm-roles do usuário {}", realmRolesAssigned.size(), userId);
+        }
+
+        // 2) Remove roles de client atribuídas diretamente ao usuário (todos os clients do realm)
+        List<ClientRepresentation> appClients = getRealmResource().clients().findByClientId(clientId);
+        if (!appClients.isEmpty()) {
+            String appClientUuid = appClients.getFirst().getId();
+            List<RoleRepresentation> appClientRoles = userResource.roles().clientLevel(appClientUuid).listAll();
+            if (!appClientRoles.isEmpty()) {
+                userResource.roles().clientLevel(appClientUuid).remove(appClientRoles);
+            }
+        }
+    }
+
+
+    public boolean deleteKeycloakUser(String userId) {
+        getUserResource(userId).remove();
+        return true;
+    }
+
+    // ===== Senha =====
+    private void setPassword(String userId, String password) {
+        CredentialRepresentation passwordCred = new CredentialRepresentation();
+        passwordCred.setTemporary(false);
+        passwordCred.setType(CredentialRepresentation.PASSWORD);
+        passwordCred.setValue(password);
+        getUserResource(userId).resetPassword(passwordCred);
     }
 
     public boolean updateLoggedUserPassword(UpdatePasswordDTO data) {
         UserRepresentation user = getLoggedUserRepresentation();
-        String userId = user.getId();
         String username = user.getUsername();
 
-        Keycloak keycloak = getKeycloakInstance();
-        RealmResource realmResource = keycloak.realm(realm);
-
-        // Valida se a senha atual informada está correta.
+        // Valida senha atual
         try {
             Keycloak keycloakAuth = KeycloakBuilder.builder().serverUrl(authServerUrl).realm(realm).clientId(clientId).clientSecret(clientSecret).username(username).password(data.getCurrentPassword()).build();
-
-            // Apenas chamar token() já força a validação
             keycloakAuth.tokenManager().getAccessToken();
         } catch (Exception ex) {
             throw new IncorrectCurrentPasswordException();
         }
-        UserResource userResource = realmResource.users().get(userId);
 
-        CredentialRepresentation credential = new CredentialRepresentation();
-        credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setTemporary(false);
-        credential.setValue(data.getNewPassword());
-
-        userResource.resetPassword(credential);
+        setPassword(user.getId(), data.getNewPassword());
         return true;
+    }
+
+    // ===== Utilitários =====
+    private String getCreatedId(Response response) {
+        String location = response.getHeaderString("Location");
+        return (location != null) ? location.substring(location.lastIndexOf("/") + 1) : null;
+    }
+
+    private void removeDefaultRealmRolesFromUser(String userId) {
+        List<String> defaultRoleNames = List.of("default-roles-jmperfumaria");
+        List<RoleRepresentation> rolesToRemove = defaultRoleNames.stream().map(roleName -> getRealmResource().roles().get(roleName).toRepresentation()).toList();
+        getUserResource(userId).roles().realmLevel().remove(rolesToRemove);
     }
 
     private UserRepresentation getLoggedUserRepresentation() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
-
-        Keycloak keycloak = getKeycloakInstance();
-        RealmResource realmResource = keycloak.realm(realm);
-        UsersResource usersResource = realmResource.users();
-
-        return usersResource.get(userId).toRepresentation();
+        return getUserResource(authentication.getName()).toRepresentation();
     }
 
     public void toggleUserStatus(String userId) {
         UserRepresentation loggedUser = getLoggedUserRepresentation();
+        if (loggedUser.getId().equals(userId)) throw new SelfToggleStatusException();
 
-        if (loggedUser.getId().equals(userId)) {
-            throw new SelfToggleStatusException();
-        }
-
-        Keycloak keycloak = getKeycloakInstance();
-        RealmResource realmResource = keycloak.realm(realm);
-        UsersResource usersResource = realmResource.users();
-
-        UserResource userResource = usersResource.get(userId);
+        UserResource userResource = getUserResource(userId);
         UserRepresentation targetUser = userResource.toRepresentation();
-
         targetUser.setEnabled(!targetUser.isEnabled());
         userResource.update(targetUser);
-
     }
-
 }

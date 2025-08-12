@@ -1,5 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.CreateUserException;
+import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.UpdateUserException;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.UserRoles;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,11 @@ public class KeycloakUserController {
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getUsers() {
         return new ResponseEntity<>(keycloakUserService.getKeycloakUsers(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserResponseDTO> getById(@PathVariable String userId) {
+        return new ResponseEntity<>(keycloakUserService.getKeycloakUserById(userId), HttpStatus.OK);
     }
 
     @GetMapping("/searchByParam")
@@ -45,13 +52,13 @@ public class KeycloakUserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<Void> createUser(@RequestBody UserDTO userDTO) {
         boolean result = keycloakUserService.createKeycloakUserWithAppRoles(userDTO.getUsername(), userDTO.getEmail(), userDTO.getFirstName(), userDTO.getLastName(), userDTO.getPassword(), userDTO.getRoles());
 
         if (result) {
-            return new ResponseEntity<>("Usuário criado com sucesso.", HttpStatus.CREATED);
+            return ResponseEntity.noContent().build();
         } else {
-            return new ResponseEntity<>("Falha ao criar usuário.", HttpStatus.BAD_REQUEST);
+            throw new CreateUserException();
         }
     }
 
@@ -68,25 +75,23 @@ public class KeycloakUserController {
 
 
     @PutMapping("/{userId}")
-    public ResponseEntity<String> updateUser(@PathVariable String userId, @RequestBody UserDTO userDTO) {
-        boolean result = keycloakUserService.updateKeycloakUser(userId, userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getRoles());
+    public ResponseEntity<Void> updateUser(@PathVariable String userId,
+                                           @RequestBody UserResponseDTO userDTO) {
+        boolean result = keycloakUserService.updateKeycloakUser(userId, userDTO);
 
         if (result) {
-            return new ResponseEntity<>("Usuário alterado com sucesso.", HttpStatus.OK);
+            return ResponseEntity.noContent().build();
         } else {
-            return new ResponseEntity<>("Falha ao alterar usuário.", HttpStatus.BAD_REQUEST);
+            throw new UpdateUserException();
         }
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<String> deleteUser(@PathVariable String userId) {
-        boolean result = keycloakUserService.deleteKeycloakUser(userId);
-
-        if (result) {
-            return new ResponseEntity<>("Usuário removido com sucesso.", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Falha ao remover usuário.", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
+        if (keycloakUserService.deleteKeycloakUser(userId)) {
+            return ResponseEntity.noContent().build(); // 204 - operação concluída sem corpo
         }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PutMapping("/senha")
