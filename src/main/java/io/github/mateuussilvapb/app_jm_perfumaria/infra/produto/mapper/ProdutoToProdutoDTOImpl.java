@@ -11,7 +11,6 @@ public class ProdutoToProdutoDTOImpl implements IProdutoToProdutoDTO {
     @Override
     public CreateUpdateProdutoDTO toDto(Produto produto) {
         return new CreateUpdateProdutoDTO(produto.getNome(), produto.getDescricao(),
-                produto.getPrecoCusto(), produto.getPrecoVenda(), produto.getStatus(),
-                produto.getSituacao(), produto.getCategoria().getId(), produto.getMarca().getId());
+                produto.getPrecoCusto(), produto.getPrecoVenda(), produto.getStatus(), produto.getCategoria().getId(), produto.getMarca().getId());
     }
 }

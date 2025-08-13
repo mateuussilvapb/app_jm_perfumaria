@@ -9,7 +9,6 @@ import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoEntradaEstoque.ProdutoEntradaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoSaidaEstoque.ProdutoSaidaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.Referable;
-import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -51,10 +50,6 @@ public class Produto extends CreateAuditableEntity implements Referable<String> 
     @NotNull(message = "O status é obrigatório")
     @Enumerated(EnumType.STRING)
     private Status status;
-
-    @NotNull(message = "A situação é obrigatória")
-    @Enumerated(EnumType.STRING)
-    private Situacao situacao;
 
     @Column(name = "codigo", nullable = false, unique = true, updatable = false)
     private Long codigo;

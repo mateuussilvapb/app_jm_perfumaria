@@ -23,7 +23,7 @@ public class ProdutoDTOToProdutoImpl implements IProdutoDTOToProduto {
         var marca = marcaQueryService.findById(produto.idMarca());
 
         return new Produto(produto.nome(), produto.descricao(), produto.precoCusto(),
-                produto.precoVenda(), produto.status(), produto.situacao(), 0L, 0, marca, categoria,
+                produto.precoVenda(), produto.status(), 0L, 0, marca, categoria,
                 new ArrayList<>(), new ArrayList<>());
     }
 }

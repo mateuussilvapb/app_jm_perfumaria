@@ -2,6 +2,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.query;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteIdStringDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.categoria.repository.ICategoriaRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
@@ -27,6 +28,10 @@ public class CategoriaQueryService {
         return this.categoriaRepository.findAllByStatus(Status.ATIVO);
     }
 
+    public List<AutocompleteIdStringDTO> findAllAtivosAutocomplete() {
+        return this.findAllAtivos().stream().map(categoria -> new AutocompleteIdStringDTO(categoria.getIdString(), categoria.getNome())).toList();
+    }
+
     public List<Categoria> findAllInativos() {
         return this.categoriaRepository.findAllByStatus(Status.INATIVO);
     }
@@ -43,15 +48,10 @@ public class CategoriaQueryService {
         }
 
         if (StringUtils.isNotBlank(searchTerm)) {
-            categorias =
-                    categorias.stream().filter(categoria -> categoria.matchSearchTerm(searchTerm)).collect(Collectors.toList());
+            categorias = categorias.stream().filter(categoria -> categoria.matchSearchTerm(searchTerm)).collect(Collectors.toList());
         }
 
-        categorias.sort(
-                Comparator
-                        .comparing((Categoria c) -> c.getStatus() == Status.ATIVO ? 0 : 1)
-                        .thenComparing(Categoria::getNome, String.CASE_INSENSITIVE_ORDER)
-        );
+        categorias.sort(Comparator.comparing((Categoria c) -> c.getStatus() == Status.ATIVO ? 0 : 1).thenComparing(Categoria::getNome, String.CASE_INSENSITIVE_ORDER));
 
         return categorias;
     }

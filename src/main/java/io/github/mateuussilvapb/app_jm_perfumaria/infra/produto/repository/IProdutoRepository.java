@@ -4,7 +4,6 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.Autocom
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
-import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -34,9 +33,6 @@ public interface IProdutoRepository extends JpaRepository<Produto, Long>, JpaSpe
             """)
     List<AutocompleteDTO> findAllByStatusAndTermoAutocompleteDTO(@Param("termo") String termo, @Param(
             "status") Status status);
-
-    @Query("SELECT p FROM Produto p WHERE p.situacao = :situacao AND p.status = :status")
-    List<Produto> findAllBySituacaoAndStatus(@Param("situacao") Situacao situacao, @Param("status") Status status);
 
     @Query("SELECT p FROM Produto p WHERE p.nome = :nome")
     Optional<Produto> findByNome(@Param("nome") String nome);

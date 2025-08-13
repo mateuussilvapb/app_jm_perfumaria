@@ -1,6 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.marca.controller;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteIdStringDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.query.MarcaQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
@@ -36,6 +37,12 @@ public class MarcaQueryController {
     @RolesAllowed({"admin", "employee", "manager"})
     public ResponseEntity<List<Marca>> getAllAtivos() {
         return new ResponseEntity<>(marcaQueryService.findAllAtivos(), HttpStatus.OK);
+    }
+
+    @GetMapping("/ativos/autocomplete")
+    @RolesAllowed({"admin", "employee", "manager"})
+    public ResponseEntity<List<AutocompleteIdStringDTO>> getAllAtivosAutocomplete() {
+        return new ResponseEntity<>(marcaQueryService.findAllAtivosAutocomplete(), HttpStatus.OK);
     }
 
     @GetMapping("/inativos")

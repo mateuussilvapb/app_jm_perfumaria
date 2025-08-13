@@ -1,8 +1,9 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.marca.query;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
-import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteIdStringDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.MarcaNotFoundException;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.marca.repository.IMarcaRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,11 @@ public class MarcaQueryService {
         return this.marcaRepository.findAllByStatus(Status.ATIVO);
     }
 
+    public List<AutocompleteIdStringDTO> findAllAtivosAutocomplete() {
+        return this.findAllAtivos().stream().map(marca -> new AutocompleteIdStringDTO(marca.getIdString(),
+                marca.getNome())).toList();
+    }
+
     public List<Marca> findAllInativos() {
         return this.marcaRepository.findAllByStatus(Status.INATIVO);
     }
@@ -44,15 +50,10 @@ public class MarcaQueryService {
         }
 
         if (StringUtils.isNotBlank(searchTerm)) {
-            marcas =
-                    marcas.stream().filter(marca -> marca.matchSearchTerm(searchTerm)).collect(Collectors.toList());
+            marcas = marcas.stream().filter(marca -> marca.matchSearchTerm(searchTerm)).collect(Collectors.toList());
         }
 
-        marcas.sort(
-                Comparator
-                        .comparing((Marca m) -> m.getStatus() == Status.ATIVO ? 0 : 1)
-                        .thenComparing(Marca::getNome, String.CASE_INSENSITIVE_ORDER)
-        );
+        marcas.sort(Comparator.comparing((Marca m) -> m.getStatus() == Status.ATIVO ? 0 : 1).thenComparing(Marca::getNome, String.CASE_INSENSITIVE_ORDER));
 
         return marcas;
     }

@@ -2,6 +2,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.control
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.query.CategoriaQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteIdStringDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 import jakarta.annotation.security.RolesAllowed;
@@ -24,6 +25,12 @@ public class CategoriaQueryController {
     public ResponseEntity<List<Categoria>> getAll() {
         List<Categoria> categorias = categoriaQueryService.findAll();
         return new ResponseEntity<>(categorias, HttpStatus.OK);
+    }
+
+    @GetMapping("/ativos/autocomplete")
+    @RolesAllowed({"admin", "employee", "manager"})
+    public ResponseEntity<List<AutocompleteIdStringDTO>> getAllAtivosAutocomplete() {
+        return new ResponseEntity<>(categoriaQueryService.findAllAtivosAutocomplete(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

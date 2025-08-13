@@ -43,10 +43,6 @@ public class ProdutoSpecification {
                 predicates.add(cb.equal(root.get("status"), filtros.status()));
             }
 
-            if (filtros.situacao() != null) {
-                predicates.add(cb.equal(root.get("situacao"), filtros.situacao()));
-            }
-
             if (filtros.idCategoria() != null) {
                 predicates.add(cb.equal(root.get("categoria").get("id"), filtros.idCategoria()));
             }

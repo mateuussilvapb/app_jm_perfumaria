@@ -2,9 +2,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.produto.controlle
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command.ProdutoCommandService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.CreateUpdateProdutoDTO;
-import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
-import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +20,13 @@ public class ProdutoCommandController {
     @PostMapping
     @RolesAllowed({"admin", "manager"})
     public ResponseEntity<Produto> create(@RequestBody @Valid CreateUpdateProdutoDTO produtoDTO) {
-        var isRascunho = produtoDTO.situacao() == Situacao.EM_CADASTRAMENTO;
-        Produto produto = produtoCommandService.create(produtoDTO, isRascunho);
+        Produto produto = produtoCommandService.create(produtoDTO);
         return new ResponseEntity<>(produto, HttpStatus.CREATED);
     }
 
     @PutMapping("{id}")
     @RolesAllowed({"admin", "manager"})
-    public ResponseEntity<Produto> update(@RequestBody @Valid CreateUpdateProdutoDTO produtoDTO,
-                                          @PathVariable String id) {
+    public ResponseEntity<Produto> update(@RequestBody @Valid CreateUpdateProdutoDTO produtoDTO, @PathVariable String id) {
         Produto produto = produtoCommandService.update(Long.parseLong(id), produtoDTO);
         return new ResponseEntity<>(produto, HttpStatus.OK);
     }
