@@ -1,6 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.query;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.domain.entradaEstoque.EntradaEstoque;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.mapper.IEntradaEstoqueToEntradaEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.entradaEstoque.repository.IEntradaEstoqueRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,9 @@ import java.util.List;
 public class EntradaEstoqueQueryService {
 
     private final IEntradaEstoqueRepository entradaEstoqueRepository;
+    private final IEntradaEstoqueToEntradaEstoqueResponseDto entradaEstoqueMapper;
 
-    public List<EntradaEstoque> findAll() {
-        return this.entradaEstoqueRepository.findAll();
+    public List<EntradaEstoqueResponseDto> findAll() {
+        return this.entradaEstoqueRepository.findAll().stream().map(entradaEstoqueMapper::toDto).toList();
     }
 }

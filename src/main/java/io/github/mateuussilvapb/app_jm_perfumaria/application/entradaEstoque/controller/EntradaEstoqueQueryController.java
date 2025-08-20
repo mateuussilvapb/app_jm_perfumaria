@@ -1,8 +1,8 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.controller;
 
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.query.EntradaEstoqueQueryService;
-import io.github.mateuussilvapb.app_jm_perfumaria.domain.entradaEstoque.EntradaEstoque;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ public class EntradaEstoqueQueryController {
 
     @GetMapping
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<EntradaEstoque>> findAll() {
+    public ResponseEntity<List<EntradaEstoqueResponseDto>> findAll() {
         return new ResponseEntity<>(queryService.findAll(), HttpStatus.OK);
     }
 }
