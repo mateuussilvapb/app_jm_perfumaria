@@ -2,6 +2,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.co
 
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.query.EntradaEstoqueQueryService;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
@@ -24,5 +25,11 @@ public class EntradaEstoqueQueryController {
     @RolesAllowed({"admin", "employee", "manager"})
     public ResponseEntity<List<EntradaEstoqueResponseDto>> findAll() {
         return new ResponseEntity<>(queryService.findAll(), HttpStatus.OK);
+    }
+
+    @GetMapping("/list")
+    @RolesAllowed({"admin", "employee", "manager"})
+    public ResponseEntity<List<EntradaEstoqueResponseListDto>> findAllToList() {
+        return new ResponseEntity<>(queryService.findAllToList(), HttpStatus.OK);
     }
 }

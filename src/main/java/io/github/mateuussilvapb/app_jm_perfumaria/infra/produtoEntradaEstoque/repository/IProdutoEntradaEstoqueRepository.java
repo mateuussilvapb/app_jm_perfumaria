@@ -7,7 +7,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IProdutoEntradaEstoqueRepository extends JpaRepository<ProdutoEntradaEstoque, Long>, JpaSpecificationExecutor<ProdutoEntradaEstoque> {
-
-
-
 }

@@ -18,6 +18,8 @@ public class EntradaEstoqueToEntradaEstoqueResponseDtoImpl implements IEntradaEs
         return new EntradaEstoqueResponseDto(
                 entradaEstoque.getId(),
                 entradaEstoque.getIdString(),
+                entradaEstoque.getCreatedAt(),
+                entradaEstoque.getCreatedBy(),
                 entradaEstoque.getStatus(),
                 entradaEstoque.getSituacao(),
                 entradaEstoque.getDescricao(),
