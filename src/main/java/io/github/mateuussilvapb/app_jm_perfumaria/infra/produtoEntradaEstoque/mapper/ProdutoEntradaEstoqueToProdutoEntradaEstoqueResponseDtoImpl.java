@@ -17,6 +17,8 @@ public class ProdutoEntradaEstoqueToProdutoEntradaEstoqueResponseDtoImpl impleme
         return new ProdutoEntradaEstoqueResponseDto(
                 produtoEntradaEstoque.getId(),
                 produtoEntradaEstoque.getIdString(),
+                produtoEntradaEstoque.getCreatedAt(),
+                produtoEntradaEstoque.getCreatedBy(),
                 produtoEntradaEstoque.getStatus(),
                 produtoEntradaEstoque.getPrecoUnitario(),
                 produtoEntradaEstoque.getQuantidade(),
