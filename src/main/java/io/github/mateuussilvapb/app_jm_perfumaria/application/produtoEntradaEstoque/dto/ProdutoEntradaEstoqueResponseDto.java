@@ -4,11 +4,14 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.Produt
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public record ProdutoEntradaEstoqueResponseDto
         (
                 Long id,
                 String idString,
+                LocalDateTime createdAt,
+                String createdBy,
                 Status status,
                 BigDecimal precoUnitario,
                 Integer quantidade,
