@@ -38,7 +38,7 @@ public class ProdutoEntradaEstoque extends CreateAuditableEntity {
     private Status status;
 
     @DecimalMin(value = "0.00", message = "O desconto não pode ser negativo")
-    @DecimalMax(value = "100.00", message = "O desconto não pode ser maior que 100%")
+    @DecimalMax(value = "0.99", message = "O desconto não pode ser maior que 99%")
     private BigDecimal desconto;
 
     //Relacionamentos
