@@ -13,20 +13,52 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.exceptions.ProdutoEntradaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.exceptions.SaidaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.*;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    // Erros de validação em DTOs (@RequestBody)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            errors.put(error.getField(), error.getDefaultMessage());
+        });
+
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST, "ValidationError", "Existem erros de validação nos campos enviados", LocalDateTime.now(), errors);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    // Erros de validação em parâmetros diretos (ex: @RequestParam, @PathVariable)
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getConstraintViolations().forEach(cv -> {
+            String field = cv.getPropertyPath().toString();
+            errors.put(field, cv.getMessage());
+        });
+
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST, "ValidationError", "Existem erros de validação nos parâmetros", LocalDateTime.now(), errors);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ProdutoNotFoundException.class)
