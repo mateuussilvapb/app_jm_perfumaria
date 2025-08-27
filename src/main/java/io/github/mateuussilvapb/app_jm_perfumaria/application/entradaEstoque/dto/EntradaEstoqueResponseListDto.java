@@ -15,6 +15,7 @@ public record EntradaEstoqueResponseListDto
                 Situacao situacao,
                 String descricao,
                 Long codigo,
+                Integer qtdItensUnicos,
                 Integer qtdItens
         ) {
 }

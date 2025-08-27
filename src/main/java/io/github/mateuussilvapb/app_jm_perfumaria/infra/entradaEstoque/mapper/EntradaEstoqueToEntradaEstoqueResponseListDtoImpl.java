@@ -3,6 +3,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.infra.entradaEstoque.mapper;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.mapper.IEntradaEstoqueToEntradaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.entradaEstoque.EntradaEstoque;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoEntradaEstoque.ProdutoEntradaEstoque;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,8 @@ public class EntradaEstoqueToEntradaEstoqueResponseListDtoImpl implements IEntra
                 entradaEstoque.getSituacao(),
                 entradaEstoque.getDescricao(),
                 entradaEstoque.getCodigo(),
-                entradaEstoque.getEntradasProdutos().size()
+                entradaEstoque.getEntradasProdutos().size(),
+                entradaEstoque.getEntradasProdutos().stream().mapToInt(ProdutoEntradaEstoque::getQuantidade).sum()
         );
     }
 }
