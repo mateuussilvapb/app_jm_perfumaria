@@ -9,7 +9,6 @@ public record CreateUpdateProdutoDTO(
         @NotBlank
         @Size(min = 3, max = 100)
         String nome,
-        @NotBlank
         @Size(max = 1000)
         String descricao,
         @NotNull(message = "O preço de custo é obrigatório")

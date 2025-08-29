@@ -34,15 +34,17 @@ public class GlobalExceptionHandler {
     // Erros de validação em DTOs (@RequestBody)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
+        StringBuilder errors = new StringBuilder();
 
         ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errors.put(error.getField(), error.getDefaultMessage());
+            errors.append(error.getField())
+                    .append(" - ")
+                    .append(error.getDefaultMessage())
+                    .append("\n");
         });
 
-        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST, "ValidationError", "Existem erros de validação nos campos enviados", LocalDateTime.now(), errors);
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST,
+                ex.getClass().getName(), errors.toString(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
     }
 
     // Erros de validação em parâmetros diretos (ex: @RequestParam, @PathVariable)
@@ -210,6 +212,34 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(QuantidadeEstoqueMaiorQueZeroException.class)
+    public ResponseEntity<ErrorResponse> handleQuantidadeEstoqueMaiorQueZeroException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PrecoVendaNegativoException.class)
+    public ResponseEntity<ErrorResponse> handlePrecoVendaNegativoException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PrecoCustoNegativoException.class)
+    public ResponseEntity<ErrorResponse> handlePrecoCustoNegativoException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PrecoCustoMaiorPrecoVendaException.class)
+    public ResponseEntity<ErrorResponse> handlePrecoCustoMaiorPrecoVendaException(Exception ex) {
         log.error(ex.getMessage(), ex);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
     }
