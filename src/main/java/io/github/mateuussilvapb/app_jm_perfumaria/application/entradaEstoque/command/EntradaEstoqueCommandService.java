@@ -3,6 +3,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.co
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueCreateUpdateDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueCreateUpdateDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.validacoes.ValidationsMovimentacao;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.DelecaoNaoPermitidaQtdEstoqueInsuficienteException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.EntradaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.mapper.IEntradaEstoqueDTOtoEntradaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command.ProdutoCommandService;
@@ -83,7 +84,13 @@ public class EntradaEstoqueCommandService {
     @Transactional
     public void deleteEntradaEstoque(Long id) {
         EntradaEstoque entradaEstoque = entradaEstoqueRepository.findById(id).orElseThrow(() -> new EntradaEstoqueNotFoundException(id));
+        validateEstoqueOnDelete(entradaEstoque);
+        entradaEstoque.getEntradasProdutos().forEach(this::removerQtdProdutosEstoque);
         entradaEstoqueRepository.delete(entradaEstoque);
+    }
+
+    private void removerQtdProdutosEstoque(ProdutoEntradaEstoque produtoEntradaEstoque) {
+        this.produtoCommandService.removerEstoque(produtoEntradaEstoque.getProduto().getId(), produtoEntradaEstoque.getQuantidade());
     }
 
     // Método para mapear um array de dtos de ProdutoMovimentacaoEstoque para um array de  ProdutoEntradaEstoque
@@ -105,7 +112,16 @@ public class EntradaEstoqueCommandService {
     private void validatePrecoCompraMenorPrecoVenda(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtos) {
         produtos.forEach(p -> {
             var produto = produtoQueryService.findById(Long.parseLong(p.idProduto()));
-            if (produto.getPrecoVenda().compareTo(p.precoUnitario()) < 0) throw new PrecoCustoMaiorPrecoVendaException(produto.getNome());
+            if (produto.getPrecoVenda().compareTo(p.precoUnitario()) < 0)
+                throw new PrecoCustoMaiorPrecoVendaException(produto.getNome());
+        });
+    }
+
+    private void validateEstoqueOnDelete(EntradaEstoque entradaEstoque) {
+        entradaEstoque.getEntradasProdutos().forEach(p -> {
+            Produto produtoEntrada = p.getProduto();
+            if (produtoEntrada.getQuantidadeEmEstoque() < p.getQuantidade())
+                throw new DelecaoNaoPermitidaQtdEstoqueInsuficienteException(produtoEntrada.getNome(), produtoEntrada.getQuantidadeEmEstoque(), p.getQuantidade());
         });
     }
 }
