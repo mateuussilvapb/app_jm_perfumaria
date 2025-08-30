@@ -18,7 +18,7 @@ public class ValidationsMovimentacao {
 
     public static void validateIfPrecoLessThenOne(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtos) {
         produtos.forEach(p -> {
-            if (p.precoUnitario().compareTo(new BigDecimal(1)) == -1) {
+            if (p.precoUnitario().compareTo(new BigDecimal(0)) < 0) {
                 throw new PrecoUnitarioInvalidoException();
             }
         });
@@ -26,7 +26,7 @@ public class ValidationsMovimentacao {
 
     public static void validateIfDescontoLessThenOne(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtos) {
         produtos.forEach(p -> {
-            if (p.desconto().compareTo(new BigDecimal(0)) == -1) {
+            if (p.desconto().compareTo(new BigDecimal(0)) < 0) {
                 throw new ValorDescontoInvalidoException();
             }
         });

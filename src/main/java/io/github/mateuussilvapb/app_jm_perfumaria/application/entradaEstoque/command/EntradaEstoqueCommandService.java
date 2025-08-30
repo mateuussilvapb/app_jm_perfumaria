@@ -7,6 +7,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exc
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.mapper.IEntradaEstoqueDTOtoEntradaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command.ProdutoCommandService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.CreateUpdateProdutoDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.PrecoCustoMaiorPrecoVendaException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.ProdutoQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.mapper.IProdutoEntradaEstoqueDTOtoProdutoEntradaEstoque;
@@ -43,6 +44,7 @@ public class EntradaEstoqueCommandService {
         ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
         ValidationsMovimentacao.validateIfPrecoLessThenOne(dto.produtos());
         ValidationsMovimentacao.validateIfDescontoLessThenOne(dto.produtos());
+        validatePrecoCompraMenorPrecoVenda(dto.produtos());
         // Pegar código sequencial
         var codigo = sequenceService.getNextValue(Constants.SEQ_ENTRADA_ESTOQUE);
         // Lista de ProdutoEntradaEstoque
@@ -61,6 +63,7 @@ public class EntradaEstoqueCommandService {
         ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
         ValidationsMovimentacao.validateIfPrecoLessThenOne(dto.produtos());
         ValidationsMovimentacao.validateIfDescontoLessThenOne(dto.produtos());
+        validatePrecoCompraMenorPrecoVenda(dto.produtos());
         // Recupera o entradaEstoque do banco de dados
         EntradaEstoque entradaEstoque = entradaEstoqueRepository.findById(id).orElseThrow(() -> new EntradaEstoqueNotFoundException(id));
         // Atualiza os campos primitivos
@@ -97,5 +100,12 @@ public class EntradaEstoqueCommandService {
 
     private void atualizarEstoquePorProduto(ProdutoMovimentacaoEstoqueCreateUpdateDTO produtoDTO) {
         this.produtoCommandService.adicionarEstoque(Long.parseLong(produtoDTO.idProduto()), produtoDTO.quantidade());
+    }
+
+    private void validatePrecoCompraMenorPrecoVenda(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtos) {
+        produtos.forEach(p -> {
+            var produto = produtoQueryService.findById(Long.parseLong(p.idProduto()));
+            if (produto.getPrecoVenda().compareTo(p.precoUnitario()) < 0) throw new PrecoCustoMaiorPrecoVendaException(produto.getNome());
+        });
     }
 }
