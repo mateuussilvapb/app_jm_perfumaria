@@ -8,7 +8,9 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IPr
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.ProdutoQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.config.persistence.SequenceService;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.entradaEstoque.EntradaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
+import io.github.mateuussilvapb.app_jm_perfumaria.infra.entradaEstoque.repository.IEntradaEstoqueRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.repository.IProdutoRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.Constants;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -31,9 +34,11 @@ public class ProdutoCommandService {
     private final MarcaQueryService marcaQueryService;
     private final IProdutoRepository produtoRepository;
     private final SequenceService sequenceService;
+    private final IEntradaEstoqueRepository entradaEstoqueRepository;
 
     public void deleteById(Long id) {
         var produto = produtoQueryService.findById(id);
+        validateExcluirProduto(produto);
         produto.setStatus(Status.INATIVO);
         this.update(id, produtoToProdutoDTOMapper.toDto(produto));
         produtoRepository.deleteById(produto.getId());
@@ -130,5 +135,10 @@ public class ProdutoCommandService {
 
     private void validateInativarProdutoComEstoque(Produto produto) {
         if (produto.getStatus() == Status.ATIVO && produto.getQuantidadeEmEstoque() > 0) throw new QuantidadeEstoqueMaiorQueZeroException(produto.getNome());
+    }
+
+    private void validateExcluirProduto(Produto produto) {
+        List<Long> codigosEntradasEstoque = entradaEstoqueRepository.findAllByProdutoId(produto.getId()).stream().map(EntradaEstoque::getCodigo).toList();
+        if (!codigosEntradasEstoque.isEmpty()) throw new ProdutoVinculadoAEntradaEstoqueException(produto.getNome(), codigosEntradasEstoque);
     }
 }

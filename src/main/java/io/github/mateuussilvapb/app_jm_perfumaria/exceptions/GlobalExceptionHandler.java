@@ -252,6 +252,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ProdutoVinculadoAEntradaEstoqueException.class)
+    public ResponseEntity<ErrorResponse> handleProdutoVinculadoAEntradaEstoqueException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
     public record ErrorResponse(HttpStatus status, String error, String message,
                                 LocalDateTime timestamp, Map<String, String> custom) {
         public ErrorResponse(HttpStatus status, String error, String message, LocalDateTime timestamp) {
