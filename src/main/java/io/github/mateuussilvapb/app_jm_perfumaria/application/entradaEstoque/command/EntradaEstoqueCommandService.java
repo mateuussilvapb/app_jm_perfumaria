@@ -71,6 +71,10 @@ public class EntradaEstoqueCommandService {
         // Atualiza os campos primitivos
         entradaEstoque.setDescricao(dto.descricao());
         entradaEstoque.setStatus(dto.status());
+        // Remover produtos do estoque para situações de Cadastro finalizado
+        if (entradaEstoque.getSituacao().equals(Situacao.CADASTRO_FINALIZADO) && dto.situacao().equals(Situacao.CADASTRO_FINALIZADO)){
+            entradaEstoque.getEntradasProdutos().forEach(this::removerQtdProdutosEstoque);
+        }
         entradaEstoque.setSituacao(dto.situacao());
         // Limpa os produtos antigos
         entradaEstoque.getEntradasProdutos().clear();
