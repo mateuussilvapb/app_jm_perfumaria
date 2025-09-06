@@ -18,6 +18,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoEntradaEstoque.ProdutoEntradaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.entradaEstoque.repository.IEntradaEstoqueRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.Constants;
+import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class EntradaEstoqueCommandService {
         // Pegar código sequencial
         var codigo = sequenceService.getNextValue(Constants.SEQ_ENTRADA_ESTOQUE);
         // Lista de ProdutoEntradaEstoque
-        List<ProdutoEntradaEstoque> entradasProdutos = new ArrayList<>(this.mapToProdutoEntradaEstoqueList(dto.produtos(), null));
+        List<ProdutoEntradaEstoque> entradasProdutos = new ArrayList<>(this.mapToProdutoEntradaEstoqueList(dto.produtos(), null, dto.situacao().equals(Situacao.EM_CADASTRAMENTO)));
         // Criando o EntradaEstoque
         EntradaEstoque entradaEstoque = entradaEstoqueMapper.toEntity(dto, codigo, entradasProdutos);
         // Referenciando o entradaEstoque para cada entradaProduto (referenciando pai no filho)
@@ -74,7 +75,7 @@ public class EntradaEstoqueCommandService {
         // Limpa os produtos antigos
         entradaEstoque.getEntradasProdutos().clear();
         // Gera novos ProdutoEntradaEstoque com base no DTO
-        List<ProdutoEntradaEstoque> novasEntradas = this.mapToProdutoEntradaEstoqueList(dto.produtos(), entradaEstoque);
+        List<ProdutoEntradaEstoque> novasEntradas = this.mapToProdutoEntradaEstoqueList(dto.produtos(), entradaEstoque, dto.situacao().equals(Situacao.EM_CADASTRAMENTO));
         // Referencia todos os ProdutoEntradaEstoque no entradaEstoque
         entradaEstoque.getEntradasProdutos().addAll(novasEntradas);
         // Persiste as informações
@@ -94,13 +95,15 @@ public class EntradaEstoqueCommandService {
     }
 
     // Método para mapear um array de dtos de ProdutoMovimentacaoEstoque para um array de  ProdutoEntradaEstoque
-    private List<ProdutoEntradaEstoque> mapToProdutoEntradaEstoqueList(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtosDTO, EntradaEstoque entradaEstoque) {
+    private List<ProdutoEntradaEstoque> mapToProdutoEntradaEstoqueList(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtosDTO, EntradaEstoque entradaEstoque, Boolean isEmCadastramento) {
         return produtosDTO.stream().map(dto -> {
             Produto produto = produtoQueryService.findById(Long.parseLong(dto.idProduto()));
             produto.setPrecoCusto(dto.precoUnitario());
             CreateUpdateProdutoDTO produtoDTO = produtoDTOMapper.toDto(produto);
             produtoCommandService.update(produto.getId(), produtoDTO);
-            atualizarEstoquePorProduto(dto);
+            if (!isEmCadastramento) {
+                atualizarEstoquePorProduto(dto);
+            }
             return produtoEntradaEstoqueMapper.toEntity(dto, produto, entradaEstoque);
         }).collect(Collectors.toList());
     }
