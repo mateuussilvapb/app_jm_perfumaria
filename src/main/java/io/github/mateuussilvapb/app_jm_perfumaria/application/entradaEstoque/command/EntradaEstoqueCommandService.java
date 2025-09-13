@@ -46,6 +46,7 @@ public class EntradaEstoqueCommandService {
         ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
         ValidationsMovimentacao.validateIfPrecoLessThenOne(dto.produtos());
         ValidationsMovimentacao.validateIfDescontoLessThenOne(dto.produtos());
+        ValidationsMovimentacao.validateDateIsInThePast(dto.dataEntradaEstoque());
         validatePrecoCompraMenorPrecoVenda(dto.produtos());
         // Pegar código sequencial
         var codigo = sequenceService.getNextValue(Constants.SEQ_ENTRADA_ESTOQUE);
@@ -65,12 +66,14 @@ public class EntradaEstoqueCommandService {
         ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
         ValidationsMovimentacao.validateIfPrecoLessThenOne(dto.produtos());
         ValidationsMovimentacao.validateIfDescontoLessThenOne(dto.produtos());
+        ValidationsMovimentacao.validateDateIsInThePast(dto.dataEntradaEstoque());
         validatePrecoCompraMenorPrecoVenda(dto.produtos());
         // Recupera o entradaEstoque do banco de dados
         EntradaEstoque entradaEstoque = entradaEstoqueRepository.findById(id).orElseThrow(() -> new EntradaEstoqueNotFoundException(id));
         // Atualiza os campos primitivos
         entradaEstoque.setDescricao(dto.descricao());
         entradaEstoque.setStatus(dto.status());
+        entradaEstoque.setDataEntradaEstoque(dto.dataEntradaEstoque());
         // Remover produtos do estoque para situações de Cadastro finalizado
         if (entradaEstoque.getSituacao().equals(Situacao.CADASTRO_FINALIZADO) && dto.situacao().equals(Situacao.CADASTRO_FINALIZADO)){
             entradaEstoque.getEntradasProdutos().forEach(this::removerQtdProdutosEstoque);

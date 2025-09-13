@@ -24,6 +24,7 @@ public class EntradaEstoqueToEntradaEstoqueViewUpdateResponseDtoImpl implements 
                 entradaEstoque.getSituacao(),
                 entradaEstoque.getDescricao(),
                 entradaEstoque.getCodigo(),
+                entradaEstoque.getDataEntradaEstoque(),
                 entradaEstoque.getEntradasProdutos().stream().map(produtoEntradaEstoqueMapper::toDto).toList()
         );
     }

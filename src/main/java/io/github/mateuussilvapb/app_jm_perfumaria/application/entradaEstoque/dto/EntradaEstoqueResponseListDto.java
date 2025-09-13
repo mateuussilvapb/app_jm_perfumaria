@@ -3,6 +3,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dt
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record EntradaEstoqueResponseListDto
@@ -15,6 +16,7 @@ public record EntradaEstoqueResponseListDto
                 Situacao situacao,
                 String descricao,
                 Long codigo,
+                LocalDate dataEntradaEstoque,
                 Integer qtdItensUnicos,
                 Integer qtdItens
         ) {

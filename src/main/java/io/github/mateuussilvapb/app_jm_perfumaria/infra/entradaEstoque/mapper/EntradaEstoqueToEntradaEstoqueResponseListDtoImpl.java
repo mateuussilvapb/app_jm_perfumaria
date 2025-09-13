@@ -23,6 +23,7 @@ public class EntradaEstoqueToEntradaEstoqueResponseListDtoImpl implements IEntra
                 entradaEstoque.getSituacao(),
                 entradaEstoque.getDescricao(),
                 entradaEstoque.getCodigo(),
+                entradaEstoque.getDataEntradaEstoque(),
                 entradaEstoque.getEntradasProdutos().size(),
                 entradaEstoque.getEntradasProdutos().stream().mapToInt(ProdutoEntradaEstoque::getQuantidade).sum()
         );

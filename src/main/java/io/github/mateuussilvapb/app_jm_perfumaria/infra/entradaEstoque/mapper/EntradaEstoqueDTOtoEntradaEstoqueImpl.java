@@ -12,8 +12,7 @@ import java.util.List;
 public class EntradaEstoqueDTOtoEntradaEstoqueImpl implements IEntradaEstoqueDTOtoEntradaEstoque {
 
     @Override
-    public EntradaEstoque toEntity(MovimentacaoEstoqueCreateUpdateDTO entradaEstoqueDTO, Long codigo,
-                                   List<ProdutoEntradaEstoque> produtos) {
-        return new EntradaEstoque(entradaEstoqueDTO.status(), entradaEstoqueDTO.situacao(), entradaEstoqueDTO.descricao(), codigo, produtos);
+    public EntradaEstoque toEntity(MovimentacaoEstoqueCreateUpdateDTO entradaEstoqueDTO, Long codigo, List<ProdutoEntradaEstoque> produtos) {
+        return new EntradaEstoque(entradaEstoqueDTO.status(), entradaEstoqueDTO.situacao(), entradaEstoqueDTO.descricao(), codigo, entradaEstoqueDTO.dataEntradaEstoque(), produtos);
     }
 }

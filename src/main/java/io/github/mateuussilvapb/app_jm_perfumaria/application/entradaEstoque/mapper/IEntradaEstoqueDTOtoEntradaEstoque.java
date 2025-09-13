@@ -7,7 +7,6 @@ import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoEntradaEstoque.P
 import java.util.List;
 
 public interface IEntradaEstoqueDTOtoEntradaEstoque {
-    EntradaEstoque toEntity(MovimentacaoEstoqueCreateUpdateDTO entradaEstoqueDTO, Long codigo,
-                            List<ProdutoEntradaEstoque> produtos);
+    EntradaEstoque toEntity(MovimentacaoEstoqueCreateUpdateDTO entradaEstoqueDTO, Long codigo, List<ProdutoEntradaEstoque> produtos);
 
 }

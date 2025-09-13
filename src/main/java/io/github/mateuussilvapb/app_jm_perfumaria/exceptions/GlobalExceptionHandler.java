@@ -5,6 +5,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptio
 import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaSameNameException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.exceptions.PrecoUnitarioInvalidoException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.exceptions.ValorDescontoInvalidoException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.DataFuturaParaEntradaEstoqueException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.DelecaoNaoPermitidaQtdEstoqueInsuficienteException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.EntradaEstoqueSemProdutosException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.MarcaInUseException;
@@ -255,6 +256,13 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ProdutoVinculadoAEntradaEstoqueException.class)
     public ResponseEntity<ErrorResponse> handleProdutoVinculadoAEntradaEstoqueException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(DataFuturaParaEntradaEstoqueException.class)
+    public ResponseEntity<ErrorResponse> handleDataFuturaParaEntradaEstoqueException(Exception ex) {
         log.error(ex.getMessage(), ex);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
     }
