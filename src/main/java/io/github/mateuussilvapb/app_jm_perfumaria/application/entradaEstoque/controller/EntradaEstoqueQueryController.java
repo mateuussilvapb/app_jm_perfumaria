@@ -1,6 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.controller;
 
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueFilterDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueToViewUpdateResponseDto;
@@ -9,10 +10,7 @@ import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -39,5 +37,11 @@ public class EntradaEstoqueQueryController {
     @RolesAllowed({"admin", "employee", "manager"})
     public ResponseEntity<EntradaEstoqueToViewUpdateResponseDto> findById(@PathVariable String id) {
         return new ResponseEntity<>(queryService.findById(Long.parseLong(id)), HttpStatus.OK);
+    }
+
+    @GetMapping("/searchByFilters")
+    @RolesAllowed({"admin", "employee", "manager"})
+    public ResponseEntity<List<EntradaEstoqueResponseListDto>> getByFilters(@ModelAttribute EntradaEstoqueFilterDto filtersDTO) {
+        return new ResponseEntity<>(queryService.findByFilters(filtersDTO), HttpStatus.OK);
     }
 }

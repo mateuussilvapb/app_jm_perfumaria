@@ -1,5 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.query;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueFilterDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueToViewUpdateResponseDto;
@@ -7,6 +8,8 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exc
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.mapper.IEntradaEstoqueToEntradaEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.mapper.IEntradaEstoqueToEntradaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.mapper.IEntradaEstoqueToEntradaEstoqueViewUpdateResponseDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.query.specification.EntradaEstoqueSpecifications;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.entradaEstoque.EntradaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.entradaEstoque.repository.IEntradaEstoqueRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +41,10 @@ public class EntradaEstoqueQueryService {
             return entradaEstoqueToViewUpdateMapper.toDto(entradaEstoque.get());
         }
         throw new EntradaEstoqueNotFoundException(id);
+    }
+
+    public List<EntradaEstoqueResponseListDto> findByFilters(EntradaEstoqueFilterDto filter) {
+        List<EntradaEstoque> entidades = entradaEstoqueRepository.findAll(EntradaEstoqueSpecifications.comFiltros(filter));
+        return entidades.stream().map(entradaEstoqueListMapper::toDto).toList();
     }
 }
