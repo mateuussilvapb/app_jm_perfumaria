@@ -5,6 +5,8 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptio
 import io.github.mateuussilvapb.app_jm_perfumaria.application.categoria.exceptions.CategoriaSameNameException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.exceptions.PrecoUnitarioInvalidoException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.exceptions.ValorDescontoInvalidoException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.DataFuturaParaEntradaEstoqueException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.DelecaoNaoPermitidaQtdEstoqueInsuficienteException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.exceptions.EntradaEstoqueSemProdutosException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.MarcaInUseException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.marca.exceptions.MarcaNotFoundException;
@@ -13,20 +15,54 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.exceptions.ProdutoEntradaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.exceptions.SaidaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.auth.keycloak.user.exceptions.*;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    // Erros de validação em DTOs (@RequestBody)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        StringBuilder errors = new StringBuilder();
+
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            errors.append(error.getField())
+                    .append(" - ")
+                    .append(error.getDefaultMessage())
+                    .append("\n");
+        });
+
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST,
+                ex.getClass().getName(), errors.toString(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    // Erros de validação em parâmetros diretos (ex: @RequestParam, @PathVariable)
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getConstraintViolations().forEach(cv -> {
+            String field = cv.getPropertyPath().toString();
+            errors.put(field, cv.getMessage());
+        });
+
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST, "ValidationError", "Existem erros de validação nos parâmetros", LocalDateTime.now(), errors);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ProdutoNotFoundException.class)
@@ -178,6 +214,55 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(QuantidadeEstoqueMaiorQueZeroException.class)
+    public ResponseEntity<ErrorResponse> handleQuantidadeEstoqueMaiorQueZeroException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PrecoVendaNegativoException.class)
+    public ResponseEntity<ErrorResponse> handlePrecoVendaNegativoException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PrecoCustoNegativoException.class)
+    public ResponseEntity<ErrorResponse> handlePrecoCustoNegativoException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PrecoCustoMaiorPrecoVendaException.class)
+    public ResponseEntity<ErrorResponse> handlePrecoCustoMaiorPrecoVendaException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(DelecaoNaoPermitidaQtdEstoqueInsuficienteException.class)
+    public ResponseEntity<ErrorResponse> handleDelecaoNaoPermitidaQtdEstoqueInsuficienteException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ProdutoVinculadoAEntradaEstoqueException.class)
+    public ResponseEntity<ErrorResponse> handleProdutoVinculadoAEntradaEstoqueException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(DataFuturaParaEntradaEstoqueException.class)
+    public ResponseEntity<ErrorResponse> handleDataFuturaParaEntradaEstoqueException(Exception ex) {
         log.error(ex.getMessage(), ex);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
     }

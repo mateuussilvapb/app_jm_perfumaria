@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -35,6 +36,9 @@ public class EntradaEstoque extends CreateAuditableEntity {
 
     @Column(name = "codigo", nullable = false, unique = true, updatable = false)
     private Long codigo;
+
+    @Column(name = "data_entrada_estoque", nullable = false)
+    private LocalDate dataEntradaEstoque;
 
     //Relacionamentos
     @OneToMany(mappedBy = "entradaEstoque", cascade = CascadeType.ALL, orphanRemoval = true)
