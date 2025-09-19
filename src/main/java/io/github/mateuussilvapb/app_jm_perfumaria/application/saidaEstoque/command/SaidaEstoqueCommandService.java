@@ -1,20 +1,24 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.command;
 
-
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueCreateUpdateDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueCreateUpdateDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.validacoes.ValidationsMovimentacao;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command.ProdutoCommandService;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.ProdutoQueryService;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.mapper.IProdutoSaidaEstoqueDTOtoProdutoSaidaEstoque;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.exceptions.DelecaoNaoPermitidaQtdEstoqueInsuficienteException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.exceptions.SaidaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.mapper.ISaidaEstoqueDTOtoSaidaEstoque;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command.ProdutoCommandService;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.CreateUpdateProdutoDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.PrecoCustoMaiorPrecoVendaException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.ProdutoQueryService;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.mapper.IProdutoSaidaEstoqueDTOtoProdutoSaidaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.config.persistence.SequenceService;
+import io.github.mateuussilvapb.app_jm_perfumaria.domain.saidaEstoque.SaidaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoSaidaEstoque.ProdutoSaidaEstoque;
-import io.github.mateuussilvapb.app_jm_perfumaria.domain.saidaEstoque.SaidaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.saidaEstoque.repository.ISaidaEstoqueRepository;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.Constants;
+import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,12 +32,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SaidaEstoqueCommandService {
 
-    private final SequenceService sequenceService;
-    private final ProdutoQueryService produtoQueryService;
     private final ISaidaEstoqueRepository saidaEstoqueRepository;
-    private final ProdutoCommandService produtoCommandService;
+    private final ProdutoQueryService produtoQueryService;
+    private final SequenceService sequenceService;
     private final ISaidaEstoqueDTOtoSaidaEstoque saidaEstoqueMapper;
     private final IProdutoSaidaEstoqueDTOtoProdutoSaidaEstoque produtoSaidaEstoqueMapper;
+    private final IProdutoToProdutoDTO produtoDTOMapper;
+    private final ProdutoCommandService produtoCommandService;
 
     @Transactional
     public SaidaEstoque createSaidaEstoqueComProdutos(MovimentacaoEstoqueCreateUpdateDTO dto) {
@@ -41,10 +46,12 @@ public class SaidaEstoqueCommandService {
         ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
         ValidationsMovimentacao.validateIfPrecoLessThenOne(dto.produtos());
         ValidationsMovimentacao.validateIfDescontoLessThenOne(dto.produtos());
+        // ValidationsMovimentacao.validateDateIsInThePast(dto.dataSaidaEstoque());
+        validatePrecoCompraMenorPrecoVenda(dto.produtos());
         // Pegar código sequencial
         var codigo = sequenceService.getNextValue(Constants.SEQ_SAIDA_ESTOQUE);
         // Lista de ProdutoSaidaEstoque
-        List<ProdutoSaidaEstoque> saidasProdutos = new ArrayList<>(this.mapToProdutoSaidaEstoqueList(dto.produtos(), null));
+        List<ProdutoSaidaEstoque> saidasProdutos = new ArrayList<>(this.mapToProdutoSaidaEstoqueList(dto.produtos(), null, dto.situacao().equals(Situacao.EM_CADASTRAMENTO)));
         // Criando o SaidaEstoque
         SaidaEstoque saidaEstoque = saidaEstoqueMapper.toEntity(dto, codigo, saidasProdutos);
         // Referenciando o saidaEstoque para cada saidaProduto (referenciando pai no filho)
@@ -59,16 +66,23 @@ public class SaidaEstoqueCommandService {
         ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
         ValidationsMovimentacao.validateIfPrecoLessThenOne(dto.produtos());
         ValidationsMovimentacao.validateIfDescontoLessThenOne(dto.produtos());
+        // ValidationsMovimentacao.validateDateIsInThePast(dto.dataSaidaEstoque());
+        validatePrecoCompraMenorPrecoVenda(dto.produtos());
         // Recupera o saidaEstoque do banco de dados
         SaidaEstoque saidaEstoque = saidaEstoqueRepository.findById(id).orElseThrow(() -> new SaidaEstoqueNotFoundException(id));
         // Atualiza os campos primitivos
         saidaEstoque.setDescricao(dto.descricao());
         saidaEstoque.setStatus(dto.status());
+        // saidaEstoque.setDataSaidaEstoque(dto.dataSaidaEstoque());
+        // Remover produtos do estoque para situações de Cadastro finalizado
+        if (saidaEstoque.getSituacao().equals(Situacao.CADASTRO_FINALIZADO) && dto.situacao().equals(Situacao.CADASTRO_FINALIZADO)){
+            saidaEstoque.getSaidasProdutos().forEach(this::removerQtdProdutosEstoque);
+        }
         saidaEstoque.setSituacao(dto.situacao());
         // Limpa os produtos antigos
         saidaEstoque.getSaidasProdutos().clear();
         // Gera novos ProdutoSaidaEstoque com base no DTO
-        List<ProdutoSaidaEstoque> novasSaidas = this.mapToProdutoSaidaEstoqueList(dto.produtos(), saidaEstoque);
+        List<ProdutoSaidaEstoque> novasSaidas = this.mapToProdutoSaidaEstoqueList(dto.produtos(), saidaEstoque, dto.situacao().equals(Situacao.EM_CADASTRAMENTO));
         // Referencia todos os ProdutoSaidaEstoque no saidaEstoque
         saidaEstoque.getSaidasProdutos().addAll(novasSaidas);
         // Persiste as informações
@@ -77,22 +91,47 @@ public class SaidaEstoqueCommandService {
 
     @Transactional
     public void deleteSaidaEstoque(Long id) {
-        SaidaEstoque saidaEstoque =
-                saidaEstoqueRepository.findById(id).orElseThrow(() -> new SaidaEstoqueNotFoundException(id));
+        SaidaEstoque saidaEstoque = saidaEstoqueRepository.findById(id).orElseThrow(() -> new SaidaEstoqueNotFoundException(id));
+        validateEstoqueOnDelete(saidaEstoque);
+        saidaEstoque.getSaidasProdutos().forEach(this::removerQtdProdutosEstoque);
         saidaEstoqueRepository.delete(saidaEstoque);
     }
 
-    // Método para mapear um array de dtos de ProdutoMovimentacaoEstoque para um array de ProdutoSaidaEstoque
-    private List<ProdutoSaidaEstoque> mapToProdutoSaidaEstoqueList(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtosDTO, SaidaEstoque saidaEstoque) {
+    private void removerQtdProdutosEstoque(ProdutoSaidaEstoque produtoSaidaEstoque) {
+        this.produtoCommandService.removerEstoque(produtoSaidaEstoque.getProduto().getId(), produtoSaidaEstoque.getQuantidade());
+    }
+
+    // Método para mapear um array de dtos de ProdutoMovimentacaoEstoque para um array de  ProdutoSaidaEstoque
+    private List<ProdutoSaidaEstoque> mapToProdutoSaidaEstoqueList(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtosDTO, SaidaEstoque saidaEstoque, Boolean isEmCadastramento) {
         return produtosDTO.stream().map(dto -> {
             Produto produto = produtoQueryService.findById(Long.parseLong(dto.idProduto()));
-            atualizarEstoquePorProduto(dto);
+            produto.setPrecoCusto(dto.precoUnitario());
+            CreateUpdateProdutoDTO produtoDTO = produtoDTOMapper.toDto(produto);
+            produtoCommandService.update(produto.getId(), produtoDTO);
+            if (!isEmCadastramento) {
+                atualizarEstoquePorProduto(dto);
+            }
             return produtoSaidaEstoqueMapper.toEntity(dto, produto, saidaEstoque);
         }).collect(Collectors.toList());
     }
 
     private void atualizarEstoquePorProduto(ProdutoMovimentacaoEstoqueCreateUpdateDTO produtoDTO) {
-        this.produtoCommandService.removerEstoque(Long.parseLong(produtoDTO.idProduto()), produtoDTO.quantidade());
+        this.produtoCommandService.adicionarEstoque(Long.parseLong(produtoDTO.idProduto()), produtoDTO.quantidade());
     }
 
+    private void validatePrecoCompraMenorPrecoVenda(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtos) {
+        produtos.forEach(p -> {
+            var produto = produtoQueryService.findById(Long.parseLong(p.idProduto()));
+            if (produto.getPrecoVenda().compareTo(p.precoUnitario()) < 0)
+                throw new PrecoCustoMaiorPrecoVendaException(produto.getNome());
+        });
+    }
+
+    private void validateEstoqueOnDelete(SaidaEstoque saidaEstoque) {
+        saidaEstoque.getSaidasProdutos().forEach(p -> {
+            Produto produtoSaida = p.getProduto();
+            if (produtoSaida.getQuantidadeEmEstoque() < p.getQuantidade())
+                throw new DelecaoNaoPermitidaQtdEstoqueInsuficienteException(produtoSaida.getNome(), produtoSaida.getQuantidadeEmEstoque(), p.getQuantidade());
+        });
+    }
 }
