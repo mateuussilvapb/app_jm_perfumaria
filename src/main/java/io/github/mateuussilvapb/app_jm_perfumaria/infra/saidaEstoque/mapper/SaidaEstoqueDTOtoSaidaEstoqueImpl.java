@@ -13,6 +13,6 @@ public class SaidaEstoqueDTOtoSaidaEstoqueImpl implements ISaidaEstoqueDTOtoSaid
 
     @Override
     public SaidaEstoque toEntity(MovimentacaoEstoqueCreateUpdateDTO saidaEstoqueDTO, Long codigo, List<ProdutoSaidaEstoque> produtos) {
-        return new SaidaEstoque(saidaEstoqueDTO.status(), saidaEstoqueDTO.situacao(), saidaEstoqueDTO.descricao(), codigo, saidaEstoqueDTO.dataEntradaEstoque(), produtos);
+        return new SaidaEstoque(saidaEstoqueDTO.status(), saidaEstoqueDTO.situacao(), saidaEstoqueDTO.descricao(), codigo, saidaEstoqueDTO.dataMovimentacaoEstoque(), produtos);
     }
 }
