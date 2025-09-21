@@ -1,7 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.infra.produtoSaidaEstoque.mapper;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoResponseDto;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.dto.ProdutoSaidaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.mapper.IProdutoSaidaEstoqueToProdutoSaidaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoSaidaEstoque.ProdutoSaidaEstoque;
 import lombok.AllArgsConstructor;
@@ -13,8 +13,8 @@ public class ProdutoSaidaEstoqueToProdutoSaidaEstoqueResponseListDtoImpl impleme
     private final IProdutoToProdutoResponseDto produtoMapper;
 
     @Override
-    public ProdutoSaidaEstoqueResponseListDto toDto(ProdutoSaidaEstoque produtoSaidaEstoque) {
-        return new ProdutoSaidaEstoqueResponseListDto(
+    public ProdutoMovimentacaoEstoqueResponseListDto toDto(ProdutoSaidaEstoque produtoSaidaEstoque) {
+        return new ProdutoMovimentacaoEstoqueResponseListDto(
                 produtoSaidaEstoque.getId(),
                 produtoSaidaEstoque.getIdString(),
                 produtoSaidaEstoque.getStatus(),

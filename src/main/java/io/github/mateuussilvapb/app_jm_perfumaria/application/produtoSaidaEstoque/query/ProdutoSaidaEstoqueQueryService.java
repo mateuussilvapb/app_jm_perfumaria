@@ -1,7 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.query;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.ProdutoNotFoundException;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.dto.ProdutoSaidaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.mapper.IProdutoSaidaEstoqueToProdutoSaidaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoSaidaEstoque.ProdutoSaidaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produtoSaidaEstoque.repository.IProdutoSaidaEstoqueRepository;
@@ -25,7 +25,7 @@ public class ProdutoSaidaEstoqueQueryService {
         return this.produtoSaidaEstoqueRepository.findAll();
     }
 
-    public List<ProdutoSaidaEstoqueResponseListDto> findAllBySaidaEstoqueId(Long saidaEstoqueId) {
+    public List<ProdutoMovimentacaoEstoqueResponseListDto> findAllBySaidaEstoqueId(Long saidaEstoqueId) {
         return this.produtoSaidaEstoqueRepository
                 .findAllBySaidaEstoqueId(saidaEstoqueId)
                 .stream()

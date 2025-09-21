@@ -1,7 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.controller;
 
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.dto.ProdutoSaidaEstoqueResponseListDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.query.ProdutoSaidaEstoqueQueryService;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class ProdutoSaidaEstoqueQueryController {
 
     @GetMapping("/findBySaidaEstoqueId")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<ProdutoSaidaEstoqueResponseListDto>> findAllBySaidaEstoqueId(
+    public ResponseEntity<List<ProdutoMovimentacaoEstoqueResponseListDto>> findAllBySaidaEstoqueId(
             @RequestParam(name = "saidaEstoqueId") Long saidaEstoqueId
     ) {
         return new ResponseEntity<>(queryService.findAllBySaidaEstoqueId(saidaEstoqueId), HttpStatus.OK);
