@@ -1,15 +1,16 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.query.specification;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.dto.ProdutoEntradaEstoqueFiltersDTO;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
+
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueFiltersDTO;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class ProdutoEntradaEstoqueSpecification {
-    public static Specification<ProdutoEntradaEstoqueSpecification> filtrar(ProdutoEntradaEstoqueFiltersDTO filtros) {
+    public static Specification<ProdutoEntradaEstoqueSpecification> filtrar(ProdutoMovimentacaoEstoqueFiltersDTO filtros) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 

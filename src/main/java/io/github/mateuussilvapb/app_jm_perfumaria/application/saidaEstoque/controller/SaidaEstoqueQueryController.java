@@ -1,7 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.controller;
 
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.dto.SaidaEstoqueFilterDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueFilterDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.dto.SaidaEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.dto.SaidaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.dto.SaidaEstoqueToViewUpdateResponseDto;
@@ -41,7 +41,7 @@ public class SaidaEstoqueQueryController {
 
     @GetMapping("/searchByFilters")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<SaidaEstoqueResponseListDto>> getByFilters(@ModelAttribute SaidaEstoqueFilterDto filtersDTO) {
+    public ResponseEntity<List<SaidaEstoqueResponseListDto>> getByFilters(@ModelAttribute MovimentacaoEstoqueFilterDto filtersDTO) {
         return new ResponseEntity<>(queryService.findByFilters(filtersDTO), HttpStatus.OK);
     }
 }

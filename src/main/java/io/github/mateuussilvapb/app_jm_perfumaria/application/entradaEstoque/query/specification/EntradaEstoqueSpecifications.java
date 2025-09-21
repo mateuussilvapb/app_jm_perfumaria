@@ -1,6 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.query.specification;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueFilterDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueFilterDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.entradaEstoque.EntradaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoEntradaEstoque.ProdutoEntradaEstoque;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EntradaEstoqueSpecifications {
-    public static Specification<EntradaEstoque> comFiltros(EntradaEstoqueFilterDto filtros) {
+    public static Specification<EntradaEstoque> comFiltros(MovimentacaoEstoqueFilterDto filtros) {
         return (root, query, cb) -> {
             // Para evitar duplicatas quando join com produtos/marcas/categorias
             assert query != null;

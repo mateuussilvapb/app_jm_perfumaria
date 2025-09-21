@@ -1,6 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.query.specification;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.dto.SaidaEstoqueFilterDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueFilterDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.saidaEstoque.SaidaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoSaidaEstoque.ProdutoSaidaEstoque;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SaidaEstoqueSpecifications {
-    public static Specification<SaidaEstoque> comFiltros(SaidaEstoqueFilterDto filtros) {
+    public static Specification<SaidaEstoque> comFiltros(MovimentacaoEstoqueFilterDto filtros) {
         return (root, query, cb) -> {
             // Para evitar duplicatas quando join com produtos/marcas/categorias
             assert query != null;

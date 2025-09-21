@@ -1,6 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.query;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueFilterDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueFilterDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueToViewUpdateResponseDto;
@@ -43,7 +43,7 @@ public class EntradaEstoqueQueryService {
         throw new EntradaEstoqueNotFoundException(id);
     }
 
-    public List<EntradaEstoqueResponseListDto> findByFilters(EntradaEstoqueFilterDto filter) {
+    public List<EntradaEstoqueResponseListDto> findByFilters(MovimentacaoEstoqueFilterDto filter) {
         List<EntradaEstoque> entidades = entradaEstoqueRepository.findAll(EntradaEstoqueSpecifications.comFiltros(filter));
         return entidades.stream().map(entradaEstoqueListMapper::toDto).toList();
     }

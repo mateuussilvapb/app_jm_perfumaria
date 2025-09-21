@@ -1,11 +1,11 @@
-package io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.dto;
+package io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
-public record ProdutoSaidaEstoqueFiltersDTO(
+public record ProdutoMovimentacaoEstoqueFiltersDTO(
         BigDecimal precoUnitarioMin,
         BigDecimal precoUnitarioMax,
         Integer quantidadeMin,
