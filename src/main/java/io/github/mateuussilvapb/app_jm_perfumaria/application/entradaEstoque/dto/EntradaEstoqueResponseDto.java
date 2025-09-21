@@ -1,6 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.dto.ProdutoEntradaEstoqueResponseDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 
@@ -19,6 +19,6 @@ public record EntradaEstoqueResponseDto
                 String descricao,
                 Long codigo,
                 LocalDate dataEntradaEstoque,
-                List<ProdutoEntradaEstoqueResponseDto> entradasProdutos
+                List<ProdutoMovimentacaoEstoqueResponseDto> entradasProdutos
         ) {
 }

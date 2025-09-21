@@ -1,7 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.infra.produtoEntradaEstoque.mapper;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoResponseDto;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.dto.ProdutoEntradaEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.mapper.IProdutoEntradaEstoqueToProdutoEntradaEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoEntradaEstoque.ProdutoEntradaEstoque;
 import lombok.AllArgsConstructor;
@@ -13,8 +13,8 @@ public class ProdutoEntradaEstoqueToProdutoEntradaEstoqueResponseDtoImpl impleme
     private final IProdutoToProdutoResponseDto produtoMapper;
 
     @Override
-    public ProdutoEntradaEstoqueResponseDto toDto(ProdutoEntradaEstoque produtoEntradaEstoque) {
-        return new ProdutoEntradaEstoqueResponseDto(
+    public ProdutoMovimentacaoEstoqueResponseDto toDto(ProdutoEntradaEstoque produtoEntradaEstoque) {
+        return new ProdutoMovimentacaoEstoqueResponseDto(
                 produtoEntradaEstoque.getId(),
                 produtoEntradaEstoque.getIdString(),
                 produtoEntradaEstoque.getCreatedAt(),
