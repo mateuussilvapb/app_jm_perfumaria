@@ -1,8 +1,8 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.controller;
 
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueFilterDto;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueToViewUpdateResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.query.EntradaEstoqueQueryService;
@@ -23,7 +23,7 @@ public class EntradaEstoqueQueryController {
 
     @GetMapping
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<EntradaEstoqueResponseDto>> findAll() {
+    public ResponseEntity<List<MovimentacaoEstoqueResponseDto>> findAll() {
         return new ResponseEntity<>(queryService.findAll(), HttpStatus.OK);
     }
 
