@@ -1,6 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.infra.saidaEstoque.mapper;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.dto.SaidaEstoqueResponseListDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.mapper.ISaidaEstoqueToSaidaEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.saidaEstoque.SaidaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoSaidaEstoque.ProdutoSaidaEstoque;
@@ -13,8 +13,8 @@ public class SaidaEstoqueToSaidaEstoqueResponseListDtoImpl implements ISaidaEsto
 
 
     @Override
-    public SaidaEstoqueResponseListDto toDto(SaidaEstoque saidaEstoque) {
-        return new SaidaEstoqueResponseListDto(
+    public MovimentacaoEstoqueResponseListDto toDto(SaidaEstoque saidaEstoque) {
+        return new MovimentacaoEstoqueResponseListDto(
                 saidaEstoque.getId(),
                 saidaEstoque.getIdString(),
                 saidaEstoque.getCreatedAt(),

@@ -3,7 +3,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.co
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueFilterDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseDto;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseListDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueToViewUpdateResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.query.EntradaEstoqueQueryService;
 import jakarta.annotation.security.RolesAllowed;
@@ -29,7 +29,7 @@ public class EntradaEstoqueQueryController {
 
     @GetMapping("/list")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<EntradaEstoqueResponseListDto>> findAllToList() {
+    public ResponseEntity<List<MovimentacaoEstoqueResponseListDto>> findAllToList() {
         return new ResponseEntity<>(queryService.findAllToList(), HttpStatus.OK);
     }
 
@@ -41,7 +41,7 @@ public class EntradaEstoqueQueryController {
 
     @GetMapping("/searchByFilters")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<EntradaEstoqueResponseListDto>> getByFilters(@ModelAttribute MovimentacaoEstoqueFilterDto filtersDTO) {
+    public ResponseEntity<List<MovimentacaoEstoqueResponseListDto>> getByFilters(@ModelAttribute MovimentacaoEstoqueFilterDto filtersDTO) {
         return new ResponseEntity<>(queryService.findByFilters(filtersDTO), HttpStatus.OK);
     }
 }
