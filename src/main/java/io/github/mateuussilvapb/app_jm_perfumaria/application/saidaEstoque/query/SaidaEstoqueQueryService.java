@@ -3,7 +3,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.quer
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueFilterDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseListDto;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.dto.SaidaEstoqueToViewUpdateResponseDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueToViewUpdateResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.exceptions.SaidaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.mapper.ISaidaEstoqueToSaidaEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.mapper.ISaidaEstoqueToSaidaEstoqueResponseListDto;
@@ -35,7 +35,7 @@ public class SaidaEstoqueQueryService {
         return this.saidaEstoqueRepository.findAll().stream().map(saidaEstoqueListMapper::toDto).toList();
     }
 
-    public SaidaEstoqueToViewUpdateResponseDto findById(Long id) {
+    public MovimentacaoEstoqueToViewUpdateResponseDto findById(Long id) {
         var saidaEstoque = this.saidaEstoqueRepository.findById(id);
         if (saidaEstoque.isPresent()) {
             return saidaEstoqueToViewUpdateMapper.toDto(saidaEstoque.get());
