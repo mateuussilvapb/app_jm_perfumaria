@@ -8,7 +8,6 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.excep
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.mapper.ISaidaEstoqueDTOtoSaidaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command.ProdutoCommandService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.CreateUpdateProdutoDTO;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.PrecoCustoMaiorPrecoVendaException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.ProdutoQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoSaidaEstoque.mapper.IProdutoSaidaEstoqueDTOtoProdutoSaidaEstoque;
@@ -46,8 +45,7 @@ public class SaidaEstoqueCommandService {
         ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
         ValidationsMovimentacao.validateIfPrecoLessThenOne(dto.produtos());
         ValidationsMovimentacao.validateIfDescontoLessThenOne(dto.produtos());
-        // ValidationsMovimentacao.validateDateIsInThePast(dto.dataSaidaEstoque());
-        validatePrecoCompraMenorPrecoVenda(dto.produtos());
+        ValidationsMovimentacao.validateDateIsInThePast(dto.dataMovimentacaoEstoque());
         // Pegar código sequencial
         var codigo = sequenceService.getNextValue(Constants.SEQ_SAIDA_ESTOQUE);
         // Lista de ProdutoSaidaEstoque
@@ -66,14 +64,13 @@ public class SaidaEstoqueCommandService {
         ValidationsMovimentacao.validateIfProdutosExists(dto.produtos());
         ValidationsMovimentacao.validateIfPrecoLessThenOne(dto.produtos());
         ValidationsMovimentacao.validateIfDescontoLessThenOne(dto.produtos());
-        // ValidationsMovimentacao.validateDateIsInThePast(dto.dataSaidaEstoque());
-        validatePrecoCompraMenorPrecoVenda(dto.produtos());
+        ValidationsMovimentacao.validateDateIsInThePast(dto.dataMovimentacaoEstoque());
         // Recupera o saidaEstoque do banco de dados
         SaidaEstoque saidaEstoque = saidaEstoqueRepository.findById(id).orElseThrow(() -> new SaidaEstoqueNotFoundException(id));
         // Atualiza os campos primitivos
         saidaEstoque.setDescricao(dto.descricao());
         saidaEstoque.setStatus(dto.status());
-        // saidaEstoque.setDataSaidaEstoque(dto.dataSaidaEstoque());
+        saidaEstoque.setDataSaidaEstoque(dto.dataMovimentacaoEstoque());
         // Remover produtos do estoque para situações de Cadastro finalizado
         if (saidaEstoque.getSituacao().equals(Situacao.CADASTRO_FINALIZADO) && dto.situacao().equals(Situacao.CADASTRO_FINALIZADO)){
             saidaEstoque.getSaidasProdutos().forEach(this::removerQtdProdutosEstoque);
@@ -105,7 +102,7 @@ public class SaidaEstoqueCommandService {
     private List<ProdutoSaidaEstoque> mapToProdutoSaidaEstoqueList(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtosDTO, SaidaEstoque saidaEstoque, Boolean isEmCadastramento) {
         return produtosDTO.stream().map(dto -> {
             Produto produto = produtoQueryService.findById(Long.parseLong(dto.idProduto()));
-            produto.setPrecoCusto(dto.precoUnitario());
+            produto.setPrecoVenda(dto.precoUnitario());
             CreateUpdateProdutoDTO produtoDTO = produtoDTOMapper.toDto(produto);
             produtoCommandService.update(produto.getId(), produtoDTO);
             if (!isEmCadastramento) {
@@ -116,15 +113,7 @@ public class SaidaEstoqueCommandService {
     }
 
     private void atualizarEstoquePorProduto(ProdutoMovimentacaoEstoqueCreateUpdateDTO produtoDTO) {
-        this.produtoCommandService.adicionarEstoque(Long.parseLong(produtoDTO.idProduto()), produtoDTO.quantidade());
-    }
-
-    private void validatePrecoCompraMenorPrecoVenda(List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtos) {
-        produtos.forEach(p -> {
-            var produto = produtoQueryService.findById(Long.parseLong(p.idProduto()));
-            if (produto.getPrecoVenda().compareTo(p.precoUnitario()) < 0)
-                throw new PrecoCustoMaiorPrecoVendaException(produto.getNome());
-        });
+        this.produtoCommandService.removerEstoque(Long.parseLong(produtoDTO.idProduto()), produtoDTO.quantidade());
     }
 
     private void validateEstoqueOnDelete(SaidaEstoque saidaEstoque) {
