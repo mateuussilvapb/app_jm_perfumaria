@@ -3,7 +3,6 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.comm
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueCreateUpdateDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueCreateUpdateDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.validacoes.ValidationsMovimentacao;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.exceptions.DelecaoNaoPermitidaQtdEstoqueInsuficienteException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.exceptions.SaidaEstoqueNotFoundException;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.mapper.ISaidaEstoqueDTOtoSaidaEstoque;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.command.ProdutoCommandService;
