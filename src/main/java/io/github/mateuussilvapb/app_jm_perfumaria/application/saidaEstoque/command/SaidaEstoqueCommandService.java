@@ -71,9 +71,9 @@ public class SaidaEstoqueCommandService {
         saidaEstoque.setDescricao(dto.descricao());
         saidaEstoque.setStatus(dto.status());
         saidaEstoque.setDataSaidaEstoque(dto.dataMovimentacaoEstoque());
-        // Remover produtos do estoque para situações de Cadastro finalizado
+        // Adicionar produtos do estoque para situações de Cadastro finalizado
         if (saidaEstoque.getSituacao().equals(Situacao.CADASTRO_FINALIZADO) && dto.situacao().equals(Situacao.CADASTRO_FINALIZADO)){
-            saidaEstoque.getSaidasProdutos().forEach(this::removerQtdProdutosEstoque);
+            saidaEstoque.getSaidasProdutos().forEach(this::adicionarQtdProdutosEstoque);
         }
         saidaEstoque.setSituacao(dto.situacao());
         // Limpa os produtos antigos
@@ -89,13 +89,12 @@ public class SaidaEstoqueCommandService {
     @Transactional
     public void deleteSaidaEstoque(Long id) {
         SaidaEstoque saidaEstoque = saidaEstoqueRepository.findById(id).orElseThrow(() -> new SaidaEstoqueNotFoundException(id));
-        validateEstoqueOnDelete(saidaEstoque);
-        saidaEstoque.getSaidasProdutos().forEach(this::removerQtdProdutosEstoque);
+        saidaEstoque.getSaidasProdutos().forEach(this::adicionarQtdProdutosEstoque);
         saidaEstoqueRepository.delete(saidaEstoque);
     }
 
-    private void removerQtdProdutosEstoque(ProdutoSaidaEstoque produtoSaidaEstoque) {
-        this.produtoCommandService.removerEstoque(produtoSaidaEstoque.getProduto().getId(), produtoSaidaEstoque.getQuantidade());
+    private void adicionarQtdProdutosEstoque(ProdutoSaidaEstoque produtoSaidaEstoque) {
+        this.produtoCommandService.adicionarEstoque(produtoSaidaEstoque.getProduto().getId(), produtoSaidaEstoque.getQuantidade());
     }
 
     // Método para mapear um array de dtos de ProdutoMovimentacaoEstoque para um array de  ProdutoSaidaEstoque
@@ -114,13 +113,5 @@ public class SaidaEstoqueCommandService {
 
     private void atualizarEstoquePorProduto(ProdutoMovimentacaoEstoqueCreateUpdateDTO produtoDTO) {
         this.produtoCommandService.removerEstoque(Long.parseLong(produtoDTO.idProduto()), produtoDTO.quantidade());
-    }
-
-    private void validateEstoqueOnDelete(SaidaEstoque saidaEstoque) {
-        saidaEstoque.getSaidasProdutos().forEach(p -> {
-            Produto produtoSaida = p.getProduto();
-            if (produtoSaida.getQuantidadeEmEstoque() < p.getQuantidade())
-                throw new DelecaoNaoPermitidaQtdEstoqueInsuficienteException(produtoSaida.getNome(), produtoSaida.getQuantidadeEmEstoque(), p.getQuantidade());
-        });
     }
 }
