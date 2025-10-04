@@ -90,6 +90,9 @@ public class ProdutoCommandService {
         if (quantidade < 1) {
             throw new QuantidadeMovimentacaoEstoqueInvalidaException(produto.getNome());
         }
+        if (produto.getQuantidadeEmEstoque() == 0) {
+            throw new ProdutoSemEstoqueException(produto.getNome());
+        }
         int novaQuantidade = produto.getQuantidadeEmEstoque() - quantidade;
         if (novaQuantidade < 0) {
             throw new EstoqueProdutoInsuficienteException(produto.getNome(), produto.getQuantidadeEmEstoque());

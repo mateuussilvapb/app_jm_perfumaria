@@ -149,6 +149,13 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ProdutoSemEstoqueException.class)
+    public ResponseEntity<ErrorResponse> handleProdutoSemEstoque(Exception ex) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getClass().getName(), ex.getMessage(), LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(QuantidadeMovimentacaoEstoqueInvalidaException.class)
     public ResponseEntity<ErrorResponse> handleQuantidadeEntradaEstoqueInvalida(Exception ex) {
         log.error(ex.getMessage(), ex);
