@@ -106,8 +106,10 @@ public class EntradaEstoqueCommandService {
     @Transactional
     public void deleteEntradaEstoque(Long id) {
         EntradaEstoque entradaEstoque = entradaEstoqueRepository.findById(id).orElseThrow(() -> new EntradaEstoqueNotFoundException(id));
-        validateEstoqueOnDelete(entradaEstoque);
-        entradaEstoque.getEntradasProdutos().forEach(this::removerQtdProdutosEstoque);
+        if (entradaEstoque.getSituacao().equals(Situacao.CADASTRO_FINALIZADO)) {
+            validateEstoqueOnDelete(entradaEstoque);
+            entradaEstoque.getEntradasProdutos().forEach(this::removerQtdProdutosEstoque);
+        }
         entradaEstoqueRepository.delete(entradaEstoque);
     }
 
@@ -122,9 +124,6 @@ public class EntradaEstoqueCommandService {
             produto.setPrecoCusto(dto.precoUnitario());
             CreateUpdateProdutoDTO produtoDTO = produtoDTOMapper.toDto(produto);
             produtoCommandService.update(produto.getId(), produtoDTO);
-//            if (!isEmCadastramento) {
-//                atualizarEstoquePorProduto(dto);
-//            }
             return produtoEntradaEstoqueMapper.toEntity(dto, produto, entradaEstoque);
         }).collect(Collectors.toList());
     }
