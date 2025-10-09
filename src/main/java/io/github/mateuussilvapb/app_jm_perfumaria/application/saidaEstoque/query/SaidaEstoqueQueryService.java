@@ -1,5 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.query;
 
+import static io.github.mateuussilvapb.app_jm_perfumaria.util.ComparatorsUtil.ordenarPorDoisCriterios;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueFilterDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseListDto;
@@ -28,11 +29,23 @@ public class SaidaEstoqueQueryService {
     private final ISaidaEstoqueToSaidaEstoqueViewUpdateResponseDto saidaEstoqueToViewUpdateMapper;
 
     public List<MovimentacaoEstoqueResponseDto> findAll() {
-        return this.saidaEstoqueRepository.findAll().stream().map(saidaEstoqueMapper::toDto).toList();
+        return this.saidaEstoqueRepository.findAll().stream()
+            .map(saidaEstoqueMapper::toDto)
+            .sorted(ordenarPorDoisCriterios(
+                MovimentacaoEstoqueResponseDto::situacao,
+                MovimentacaoEstoqueResponseDto::codigo
+            ))
+            .toList();
     }
 
     public List<MovimentacaoEstoqueResponseListDto> findAllToList() {
-        return this.saidaEstoqueRepository.findAll().stream().map(saidaEstoqueListMapper::toDto).toList();
+        return this.saidaEstoqueRepository.findAll().stream()
+            .map(saidaEstoqueListMapper::toDto)
+            .sorted(ordenarPorDoisCriterios(
+                MovimentacaoEstoqueResponseListDto::situacao,
+                MovimentacaoEstoqueResponseListDto::codigo
+            ))
+            .toList();
     }
 
     public MovimentacaoEstoqueToViewUpdateResponseDto findById(Long id) {
@@ -45,6 +58,11 @@ public class SaidaEstoqueQueryService {
 
     public List<MovimentacaoEstoqueResponseListDto> findByFilters(MovimentacaoEstoqueFilterDto filter) {
         List<SaidaEstoque> entidades = saidaEstoqueRepository.findAll(SaidaEstoqueSpecifications.comFiltros(filter));
-        return entidades.stream().map(saidaEstoqueListMapper::toDto).toList();
+        return entidades.stream().map(saidaEstoqueListMapper::toDto)
+            .sorted(ordenarPorDoisCriterios(
+                MovimentacaoEstoqueResponseListDto::situacao,
+                MovimentacaoEstoqueResponseListDto::codigo
+            ))
+            .toList();
     }
 }

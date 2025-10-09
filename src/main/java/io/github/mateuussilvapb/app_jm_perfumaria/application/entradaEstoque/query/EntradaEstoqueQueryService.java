@@ -1,5 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.query;
 
+import static io.github.mateuussilvapb.app_jm_perfumaria.util.ComparatorsUtil.ordenarPorDoisCriterios;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueToViewUpdateResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueFilterDto;
@@ -28,11 +29,23 @@ public class EntradaEstoqueQueryService {
     private final IEntradaEstoqueToEntradaEstoqueViewUpdateResponseDto entradaEstoqueToViewUpdateMapper;
 
     public List<MovimentacaoEstoqueResponseDto> findAll() {
-        return this.entradaEstoqueRepository.findAll().stream().map(entradaEstoqueMapper::toDto).toList();
+        return this.entradaEstoqueRepository.findAll().stream()
+            .map(entradaEstoqueMapper::toDto)
+            .sorted(ordenarPorDoisCriterios(
+                MovimentacaoEstoqueResponseDto::situacao,
+                MovimentacaoEstoqueResponseDto::codigo
+            ))
+            .toList();
     }
 
     public List<MovimentacaoEstoqueResponseListDto> findAllToList() {
-        return this.entradaEstoqueRepository.findAll().stream().map(entradaEstoqueListMapper::toDto).toList();
+        return this.entradaEstoqueRepository.findAll().stream()
+            .map(entradaEstoqueListMapper::toDto)
+            .sorted(ordenarPorDoisCriterios(
+                MovimentacaoEstoqueResponseListDto::situacao,
+                MovimentacaoEstoqueResponseListDto::codigo
+            ))
+            .toList();
     }
 
     public MovimentacaoEstoqueToViewUpdateResponseDto findById(Long id) {
@@ -44,7 +57,15 @@ public class EntradaEstoqueQueryService {
     }
 
     public List<MovimentacaoEstoqueResponseListDto> findByFilters(MovimentacaoEstoqueFilterDto filter) {
-        List<EntradaEstoque> entidades = entradaEstoqueRepository.findAll(EntradaEstoqueSpecifications.comFiltros(filter));
-        return entidades.stream().map(entradaEstoqueListMapper::toDto).toList();
+        List<EntradaEstoque> entidades = entradaEstoqueRepository.findAll(
+            EntradaEstoqueSpecifications.comFiltros(filter)
+        );
+        return entidades.stream()
+            .map(entradaEstoqueListMapper::toDto)
+            .sorted(ordenarPorDoisCriterios(
+                MovimentacaoEstoqueResponseListDto::situacao,
+                MovimentacaoEstoqueResponseListDto::codigo
+            ))
+            .toList();
     }
 }
