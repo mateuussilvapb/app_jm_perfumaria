@@ -2,6 +2,7 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.produto.controlle
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteIdStringDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.ProdutoAutocompleteMovimentacaoEstoqueDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.ProdutoFiltersDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.ProdutoQueryService;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
@@ -30,6 +31,13 @@ public class ProdutoQueryController {
     @RolesAllowed({"admin", "employee", "manager"})
     public ResponseEntity<List<AutocompleteIdStringDTO>> getAllAtivosAutocomplete() {
         return new ResponseEntity<>(produtoQueryService.findAllAtivosAutocomplete(), HttpStatus.OK);
+    }
+
+    @GetMapping("/ativos/autocomplete/movimentacaoEstoque")
+    @RolesAllowed({"admin", "employee", "manager"})
+    public ResponseEntity<List<ProdutoAutocompleteMovimentacaoEstoqueDTO>> getAllAtivosAutocompleteMovimentacao() {
+        return new ResponseEntity<>(produtoQueryService.findAllAtivosAutocompleteMovimentacao(),
+                HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
