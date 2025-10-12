@@ -85,7 +85,7 @@ public class ProdutoCommandService {
         produtoRepository.save(produto);
     }
 
-    public void removerEstoque(Long idProduto, Integer quantidade) {
+    public void removerEstoque(Long idProduto, Integer quantidade, Boolean isUpdateEntradaEstoque) {
         Produto produto = produtoQueryService.findById(idProduto);
         if (quantidade < 1) {
             throw new QuantidadeMovimentacaoEstoqueInvalidaException(produto.getNome());
@@ -95,7 +95,29 @@ public class ProdutoCommandService {
         }
         int novaQuantidade = produto.getQuantidadeEmEstoque() - quantidade;
         if (novaQuantidade < 0) {
-            throw new EstoqueProdutoInsuficienteException(produto.getNome(), produto.getQuantidadeEmEstoque());
+            StringBuilder mensagemErro = new StringBuilder();
+            if (isUpdateEntradaEstoque) {
+                mensagemErro
+                    .append("Não é possível alterar a entrada de estoque.")
+                    .append("\n")
+                    .append("Atualmente, a quantidade em estoque do produto '")
+                    .append(produto.getNome())
+                    .append("' é de ")
+                    .append(produto.getQuantidadeEmEstoque())
+                    .append(".")
+                    .append("\n")
+                    .append("Atualizar a quantidade da entrada de estoque para um valor abaixo de ")
+                    .append(produto.getQuantidadeEmEstoque())
+                    .append(" acarretaria em uma quantidade de estoque negativa.");
+            } else {
+                mensagemErro
+                    .append("Produto com o nome '")
+                    .append(produto.getNome()).append("' não possui estoque suficiente. A quantidade disponível em estoque é de")
+                    .append(" ")
+                    .append(produto.getQuantidadeEmEstoque())
+                    .append(" produtos");   
+            }
+            throw new EstoqueProdutoInsuficienteException(mensagemErro.toString());
         }
         produto.setQuantidadeEmEstoque(novaQuantidade);
         produtoRepository.save(produto);

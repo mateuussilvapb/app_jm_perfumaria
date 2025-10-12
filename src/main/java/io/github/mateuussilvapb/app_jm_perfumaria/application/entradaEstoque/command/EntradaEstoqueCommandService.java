@@ -114,7 +114,7 @@ public class EntradaEstoqueCommandService {
     }
 
     private void removerQtdProdutosEstoque(ProdutoEntradaEstoque produtoEntradaEstoque) {
-        this.produtoCommandService.removerEstoque(produtoEntradaEstoque.getProduto().getId(), produtoEntradaEstoque.getQuantidade());
+        this.produtoCommandService.removerEstoque(produtoEntradaEstoque.getProduto().getId(), produtoEntradaEstoque.getQuantidade(), true);
     }
 
     // Método para mapear um array de dtos de ProdutoMovimentacaoEstoque para um array de  ProdutoEntradaEstoque
@@ -211,7 +211,7 @@ public class EntradaEstoqueCommandService {
             produtoCommandService.adicionarEstoque(ee.getProduto().getId(), diferenca);
         } else {
             // Reduzir estoque
-            this.produtoCommandService.removerEstoque(ee.getProduto().getId(), -diferenca);
+            this.produtoCommandService.removerEstoque(ee.getProduto().getId(), -diferenca, true);
         }
 
         // Atualiza a quantidade no objeto da entrada de estoque

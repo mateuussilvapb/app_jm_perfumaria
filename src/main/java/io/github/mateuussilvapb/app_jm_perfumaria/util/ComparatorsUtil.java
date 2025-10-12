@@ -15,7 +15,7 @@ public final class ComparatorsUtil {
             Function<T, K2> extratorChave2) {
 
         return Comparator
-                .comparing(extratorChave1, Comparator.reverseOrder())
+                .comparing(extratorChave1)
                 .thenComparing(extratorChave2);
     }
 }

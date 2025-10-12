@@ -111,6 +111,6 @@ public class SaidaEstoqueCommandService {
     }
 
     private void atualizarEstoquePorProduto(ProdutoMovimentacaoEstoqueCreateUpdateDTO produtoDTO) {
-        this.produtoCommandService.removerEstoque(Long.parseLong(produtoDTO.idProduto()), produtoDTO.quantidade());
+        this.produtoCommandService.removerEstoque(Long.parseLong(produtoDTO.idProduto()), produtoDTO.quantidade(), false);
     }
 }
