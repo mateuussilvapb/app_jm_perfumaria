@@ -27,7 +27,7 @@ services:
       POSTGRES_USER: jm_user
       POSTGRES_PASSWORD: jm_password
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data # Remove this in linux aws
       - ./init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U jm_user -d app_jm_perfumaria || exit 1"]
@@ -50,12 +50,11 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KC_HOSTNAME_STRICT: "false"
-      KC_HOSTNAME: https://54-233-124-101.nip.io
-      KC_HOSTNAME_URL: https://54-233-124-101.nip.io/admin
-      KC_HOSTNAME_PATH: /admin
+      KC_HOSTNAME: https://auth.54-233-124-101.sslip.io
       KC_PROXY: edge
       KC_HOSTNAME_STRICT_HTTPS: "true"
       KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_PORT: 8080
       mem_limit: 500m
       KC_HTTP_ENABLED: "true"
     command: ["start-dev"]
@@ -84,8 +83,8 @@ services:
     volumes:
       - ./frontend/dist/app_jm_perfumaria/browser:/usr/share/nginx/html:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - /etc/letsencrypt/live/54-233-124-101.nip.io/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
-      - /etc/letsencrypt/live/54-233-124-101.nip.io/privkey.pem:/etc/ssl/private/privkey.pem:ro
+      - /etc/letsencrypt/live/54-233-124-101.sslip.io/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - /etc/letsencrypt/live/54-233-124-101.sslip.io/privkey.pem:/etc/ssl/private/privkey.pem:ro
     depends_on:
       - app
       - keycloak

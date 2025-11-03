@@ -28,7 +28,7 @@ public class TokenService {
                 .with("grant_type", user.grantType());
 
         return webClient.post()
-                .uri("http://keycloak:8080/realms/JMPERFUMARIA/protocol/openid-connect/token")
+                .uri("https://auth.54-233-124-101.sslip.io/realms/JMPERFUMARIA/protocol/openid-connect/token")
                 .headers(httpHeaders -> httpHeaders.addAll(headers))
                 .body(formData)
                 .retrieve()
