@@ -89,7 +89,7 @@ public class EntradaEstoqueCommandService {
         entradaEstoque.setDataEntradaEstoque(dto.dataMovimentacaoEstoque());
 
         // Ajusta estoque apenas se já estava finalizado
-        if (entradaEstoque.getSituacao().equals(Situacao.CADASTRO_FINALIZADO) && dto.situacao().equals(Situacao.CADASTRO_FINALIZADO)) {
+        if (dto.situacao().equals(Situacao.CADASTRO_FINALIZADO)) {
             tratarProdutosUpdateEntradaEstoque(entradaEstoque, dto);
         }
 
@@ -197,24 +197,30 @@ public class EntradaEstoqueCommandService {
             return; // Produto diferente, não faz nada
         }
 
-        int quantidadeAtual = ee.getQuantidade();
-        int quantidadeNova = eeDto.quantidade();
-
-        if (quantidadeAtual == quantidadeNova) {
-            return; // Não há alteração, nada a fazer
-        }
-
-        int diferenca = quantidadeNova - quantidadeAtual;
-
-        if (diferenca > 0) {
-            // Aumentar estoque
-            produtoCommandService.adicionarEstoque(ee.getProduto().getId(), diferenca);
+        if (ee.getEntradaEstoque().getSituacao().equals(Situacao.EM_CADASTRAMENTO)) {
+            produtoCommandService.adicionarEstoque(ee.getProduto().getId(), eeDto.quantidade());
+            ee.setQuantidade(eeDto.quantidade());
         } else {
-            // Reduzir estoque
-            this.produtoCommandService.removerEstoque(ee.getProduto().getId(), -diferenca, true);
-        }
 
-        // Atualiza a quantidade no objeto da entrada de estoque
-        ee.setQuantidade(quantidadeNova);
+            int quantidadeAtual = ee.getQuantidade();
+            int quantidadeNova = eeDto.quantidade();
+
+            if (quantidadeAtual == quantidadeNova) {
+                return; // Não há alteração, nada a fazer
+            }
+
+            int diferenca = quantidadeNova - quantidadeAtual;
+
+            if (diferenca > 0) {
+                // Aumentar estoque
+                produtoCommandService.adicionarEstoque(ee.getProduto().getId(), diferenca);
+            } else {
+                // Reduzir estoque
+                this.produtoCommandService.removerEstoque(ee.getProduto().getId(), -diferenca, true);
+            }
+
+            // Atualiza a quantidade no objeto da entrada de estoque
+            ee.setQuantidade(quantidadeNova);
+        }
     }
 }
