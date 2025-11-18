@@ -10,7 +10,7 @@ public record MovimentacaoEstoqueCreateUpdateDTO(
         String descricao,
         Situacao situacao,
         Status status,
-        LocalDate dataEntradaEstoque,
+        LocalDate dataMovimentacaoEstoque,
         List<ProdutoMovimentacaoEstoqueCreateUpdateDTO> produtos
 ) {
 

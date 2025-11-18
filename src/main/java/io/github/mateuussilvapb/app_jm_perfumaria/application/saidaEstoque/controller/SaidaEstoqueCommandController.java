@@ -29,7 +29,7 @@ public class SaidaEstoqueCommandController {
     @PutMapping("/{id}")
     @RolesAllowed({"admin", "manager"})
     public ResponseEntity<SaidaEstoque> update(@PathVariable Long id,
-                                               @RequestBody @Valid MovimentacaoEstoqueCreateUpdateDTO dto) {
+                                                 @RequestBody @Valid MovimentacaoEstoqueCreateUpdateDTO dto) {
         SaidaEstoque updated = commandService.updateSaidaEstoque(id, dto);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }

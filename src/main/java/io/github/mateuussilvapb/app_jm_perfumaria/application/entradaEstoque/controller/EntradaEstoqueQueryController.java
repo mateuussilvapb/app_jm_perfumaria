@@ -1,10 +1,10 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.controller;
 
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueFilterDto;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseDto;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueResponseListDto;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueToViewUpdateResponseDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueToViewUpdateResponseDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueFilterDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseListDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.query.EntradaEstoqueQueryService;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
@@ -23,25 +23,25 @@ public class EntradaEstoqueQueryController {
 
     @GetMapping
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<EntradaEstoqueResponseDto>> findAll() {
+    public ResponseEntity<List<MovimentacaoEstoqueResponseDto>> findAll() {
         return new ResponseEntity<>(queryService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/list")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<EntradaEstoqueResponseListDto>> findAllToList() {
+    public ResponseEntity<List<MovimentacaoEstoqueResponseListDto>> findAllToList() {
         return new ResponseEntity<>(queryService.findAllToList(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<EntradaEstoqueToViewUpdateResponseDto> findById(@PathVariable String id) {
+    public ResponseEntity<MovimentacaoEstoqueToViewUpdateResponseDto> findById(@PathVariable String id) {
         return new ResponseEntity<>(queryService.findById(Long.parseLong(id)), HttpStatus.OK);
     }
 
     @GetMapping("/searchByFilters")
     @RolesAllowed({"admin", "employee", "manager"})
-    public ResponseEntity<List<EntradaEstoqueResponseListDto>> getByFilters(@ModelAttribute EntradaEstoqueFilterDto filtersDTO) {
+    public ResponseEntity<List<MovimentacaoEstoqueResponseListDto>> getByFilters(@ModelAttribute MovimentacaoEstoqueFilterDto filtersDTO) {
         return new ResponseEntity<>(queryService.findByFilters(filtersDTO), HttpStatus.OK);
     }
 }

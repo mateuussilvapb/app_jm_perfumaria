@@ -1,4 +1,4 @@
-package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto;
+package io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 
@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-public record EntradaEstoqueFilterDto(
+public record MovimentacaoEstoqueFilterDto(
         LocalDate dataInicial,
         LocalDate dataFinal,
         String descricao,

@@ -2,8 +2,10 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteIdStringDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.ProdutoAutocompleteMovimentacaoEstoqueDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.dto.ProdutoFiltersDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.exceptions.ProdutoNotFoundException;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.mapper.IProdutoToProdutoAutocompleteMovimentacaoEstoqueDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produto.query.specification.ProdutoSpecification;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.categoria.Categoria;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.marca.Marca;
@@ -22,6 +24,7 @@ import java.util.List;
 public class ProdutoQueryService {
 
     private final IProdutoRepository produtoRepository;
+    private final IProdutoToProdutoAutocompleteMovimentacaoEstoqueDTO produtoMovimentacaoMapper;
 
     public List<Produto> findAllAtivos() {
         return this.produtoRepository.findAllByStatus(Status.ATIVO);
@@ -29,6 +32,10 @@ public class ProdutoQueryService {
 
     public List<AutocompleteIdStringDTO> findAllAtivosAutocomplete() {
         return this.findAllAtivos().stream().map(produto -> new AutocompleteIdStringDTO(produto.getIdString(), produto.getNome())).toList();
+    }
+
+    public List<ProdutoAutocompleteMovimentacaoEstoqueDTO> findAllAtivosAutocompleteMovimentacao() {
+        return this.findAllAtivos().stream().map(produtoMovimentacaoMapper::toDto).toList();
     }
 
     public List<AutocompleteDTO> findAllToAutocompleteByTermAndStatus(String searchTerm, Status status) {

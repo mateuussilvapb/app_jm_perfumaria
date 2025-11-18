@@ -1,6 +1,6 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.infra.entradaEstoque.mapper;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto.EntradaEstoqueToViewUpdateResponseDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueToViewUpdateResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.mapper.IEntradaEstoqueToEntradaEstoqueViewUpdateResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.mapper.IProdutoEntradaEstoqueToProdutoEntradaEstoqueViewUpdateResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.entradaEstoque.EntradaEstoque;
@@ -14,8 +14,8 @@ public class EntradaEstoqueToEntradaEstoqueViewUpdateResponseDtoImpl implements 
     private final IProdutoEntradaEstoqueToProdutoEntradaEstoqueViewUpdateResponseDto produtoEntradaEstoqueMapper;
 
     @Override
-    public EntradaEstoqueToViewUpdateResponseDto toDto(EntradaEstoque entradaEstoque) {
-        return new EntradaEstoqueToViewUpdateResponseDto(
+    public MovimentacaoEstoqueToViewUpdateResponseDto toDto(EntradaEstoque entradaEstoque) {
+        return new MovimentacaoEstoqueToViewUpdateResponseDto(
                 entradaEstoque.getId(),
                 entradaEstoque.getIdString(),
                 entradaEstoque.getCreatedAt(),

@@ -13,6 +13,6 @@ public class EntradaEstoqueDTOtoEntradaEstoqueImpl implements IEntradaEstoqueDTO
 
     @Override
     public EntradaEstoque toEntity(MovimentacaoEstoqueCreateUpdateDTO entradaEstoqueDTO, Long codigo, List<ProdutoEntradaEstoque> produtos) {
-        return new EntradaEstoque(entradaEstoqueDTO.status(), entradaEstoqueDTO.situacao(), entradaEstoqueDTO.descricao(), codigo, entradaEstoqueDTO.dataEntradaEstoque(), produtos);
+        return new EntradaEstoque(entradaEstoqueDTO.status(), entradaEstoqueDTO.situacao(), entradaEstoqueDTO.descricao(), codigo, entradaEstoqueDTO.dataMovimentacaoEstoque(), produtos);
     }
 }

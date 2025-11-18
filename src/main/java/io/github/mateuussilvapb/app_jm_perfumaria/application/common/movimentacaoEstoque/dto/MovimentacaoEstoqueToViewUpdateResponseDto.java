@@ -1,6 +1,5 @@
-package io.github.mateuussilvapb.app_jm_perfumaria.application.entradaEstoque.dto;
+package io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.dto.ProdutoEntradaEstoqueToViewUpdateResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Situacao;
 import io.github.mateuussilvapb.app_jm_perfumaria.shared.enums.Status;
 
@@ -8,7 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record EntradaEstoqueToViewUpdateResponseDto
+public record MovimentacaoEstoqueToViewUpdateResponseDto
         (
                 Long id,
                 String idString,
@@ -18,7 +17,7 @@ public record EntradaEstoqueToViewUpdateResponseDto
                 Situacao situacao,
                 String descricao,
                 Long codigo,
-                LocalDate dataEntradaEstoque,
-                List<ProdutoEntradaEstoqueToViewUpdateResponseDto> entradasProdutos
+                LocalDate dataMovimentacaoEstoque,
+                List<ProdutoMovimentacaoEstoqueToViewUpdateResponseDto> movimentacaoProdutos
         ) {
 }

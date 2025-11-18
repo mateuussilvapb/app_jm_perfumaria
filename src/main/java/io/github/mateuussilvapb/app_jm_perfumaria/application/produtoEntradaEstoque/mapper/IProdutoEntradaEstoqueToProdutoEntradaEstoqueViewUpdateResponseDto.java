@@ -1,8 +1,8 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.mapper;
 
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.dto.ProdutoEntradaEstoqueToViewUpdateResponseDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueToViewUpdateResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoEntradaEstoque.ProdutoEntradaEstoque;
 
 public interface IProdutoEntradaEstoqueToProdutoEntradaEstoqueViewUpdateResponseDto {
-    ProdutoEntradaEstoqueToViewUpdateResponseDto toDto(ProdutoEntradaEstoque produtoEntradaEstoque);
+    ProdutoMovimentacaoEstoqueToViewUpdateResponseDto toDto(ProdutoEntradaEstoque produtoEntradaEstoque);
 }

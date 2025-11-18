@@ -1,7 +1,7 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.infra.produtoEntradaEstoque.mapper;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.mapper.IAutocompleteMapper;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.dto.ProdutoEntradaEstoqueToViewUpdateResponseDto;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.ProdutoMovimentacaoEstoqueToViewUpdateResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.produtoEntradaEstoque.mapper.IProdutoEntradaEstoqueToProdutoEntradaEstoqueViewUpdateResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produto.Produto;
 import io.github.mateuussilvapb.app_jm_perfumaria.domain.produtoEntradaEstoque.ProdutoEntradaEstoque;
@@ -14,8 +14,8 @@ public class ProdutoEntradaEstoqueToProdutoEntradaEstoqueViewUpdateResponseDtoIm
     private final IAutocompleteMapper<Produto> autocompleteMapper;
 
     @Override
-    public ProdutoEntradaEstoqueToViewUpdateResponseDto toDto(ProdutoEntradaEstoque produtoEntradaEstoque) {
-        return new ProdutoEntradaEstoqueToViewUpdateResponseDto(
+    public ProdutoMovimentacaoEstoqueToViewUpdateResponseDto toDto(ProdutoEntradaEstoque produtoEntradaEstoque) {
+        return new ProdutoMovimentacaoEstoqueToViewUpdateResponseDto(
                 produtoEntradaEstoque.getId(),
                 produtoEntradaEstoque.getIdString(),
                 produtoEntradaEstoque.getCreatedAt(),
