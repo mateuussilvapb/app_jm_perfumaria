@@ -11,35 +11,82 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface IProdutoRepository extends JpaRepository<Produto, Long>, JpaSpecificationExecutor<Produto> {
 
-    @Query("SELECT p FROM Produto p WHERE p.status = :status")
-    List<Produto> findAllByStatus(@Param("status") Status status);
+        @Query("SELECT p FROM Produto p WHERE p.status = :status")
+        List<Produto> findAllByStatus(@Param("status") Status status);
 
-    @Query("""
-                        SELECT new io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO(p.id, p.nome)
+        @Query("""
+                                    SELECT new io.github.mateuussilvapb.app_jm_perfumaria.application.common.dto.AutocompleteDTO(p.id, p.nome)
+                                    FROM Produto p
+                                    WHERE p.status = :status
+                                      AND (
+                                           :termo IS NULL
+                                           OR :termo = ''
+                                           OR LOWER(p.nome) LIKE LOWER(CONCAT('%', :termo, '%'))
+                                           OR LOWER(p.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))
+                                      )
+                        """)
+        List<AutocompleteDTO> findAllByStatusAndTermoAutocompleteDTO(@Param("termo") String termo,
+                        @Param("status") Status status);
+
+        @Query("SELECT p FROM Produto p WHERE p.nome = :nome")
+        Optional<Produto> findByNome(@Param("nome") String nome);
+
+        @Query("SELECT p FROM Produto p WHERE p.categoria = :categoria")
+        List<Produto> findByCategoria(@Param("categoria") Categoria categoria);
+
+        @Query("SELECT p FROM Produto p WHERE p.marca = :marca")
+        List<Produto> findByMarca(@Param("marca") Marca marca);
+
+        /**
+         * Calcula o valor total do estoque baseado no preço de custo
+         * 
+         * @return Valor total (precoCusto * quantidadeEmEstoque) de todos os produtos
+         *         ativos
+         */
+        @Query("""
+                        SELECT COALESCE(SUM(p.precoCusto * p.quantidadeEmEstoque), 0)
                         FROM Produto p
-                        WHERE p.status = :status
-                          AND (
-                               :termo IS NULL
-                               OR :termo = ''
-                               OR LOWER(p.nome) LIKE LOWER(CONCAT('%', :termo, '%'))
-                               OR LOWER(p.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))
-                          )
-            """)
-    List<AutocompleteDTO> findAllByStatusAndTermoAutocompleteDTO(@Param("termo") String termo, @Param(
-            "status") Status status);
+                        WHERE p.status = 'ATIVO'
+                        """)
+        BigDecimal calcularValorTotalEstoqueCusto();
 
-    @Query("SELECT p FROM Produto p WHERE p.nome = :nome")
-    Optional<Produto> findByNome(@Param("nome") String nome);
+        /**
+         * Calcula o valor total do estoque baseado no preço de venda
+         * 
+         * @return Valor total (precoVenda * quantidadeEmEstoque) de todos os produtos
+         *         ativos
+         */
+        @Query("""
+                        SELECT COALESCE(SUM(p.precoVenda * p.quantidadeEmEstoque), 0)
+                        FROM Produto p
+                        WHERE p.status = 'ATIVO'
+                        """)
+        BigDecimal calcularValorTotalEstoqueVenda();
 
-    @Query("SELECT p FROM Produto p WHERE p.categoria = :categoria")
-    List<Produto> findByCategoria(@Param("categoria") Categoria categoria);
+        /**
+         * Calcula a quantidade total de produtos em estoque
+         * 
+         * @return Soma de todas as quantidades em estoque dos produtos ativos
+         */
+        @Query("""
+                        SELECT COALESCE(SUM(p.quantidadeEmEstoque), 0)
+                        FROM Produto p
+                        WHERE p.status = 'ATIVO'
+                        """)
+        Long calcularQuantidadeTotalEstoque();
 
-    @Query("SELECT p FROM Produto p WHERE p.marca = :marca")
-    List<Produto> findByMarca(@Param("marca") Marca marca);
+        /**
+         * Conta quantos produtos diferentes existem no estoque
+         * 
+         * @return Quantidade de produtos ativos
+         */
+        @Query("SELECT COUNT(p) FROM Produto p WHERE p.status = 'ATIVO'")
+        Long contarProdutosAtivos();
 }
