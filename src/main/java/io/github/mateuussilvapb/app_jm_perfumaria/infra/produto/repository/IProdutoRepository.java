@@ -99,7 +99,12 @@ public interface IProdutoRepository extends JpaRepository<Produto, Long>, JpaSpe
 	 * 
 	 * @return Lista de produtos com baixa quantidade em estoque
 	 */
-	@Query("SELECT p FROM Produto p WHERE p.quantidadeEmEstoque < 5")
+	@Query("""
+			SELECT p 
+			FROM Produto p 
+			WHERE p.quantidadeEmEstoque < 5
+			ORDER BY p.quantidadeEmEstoque ASC, p.nome ASC
+			""")
 	List<Produto> findAllByQuantidadeEmEstoqueLessThanFive();
 
 	/**
