@@ -15,6 +15,7 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.Prod
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.ProdutosBaixaQuantidadeDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.ValorTotalEstoqueDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.query.DashboardQueryService;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.dto.ResumoMensalSaidaEstoqueDto;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 
@@ -70,5 +71,31 @@ public class DashboardQueryController {
 
 		return dashboardQueryService.listarProdutosSemMovimentacao(dataLimite);
 	}
+
+	/**
+	 * Endpoint para obter o resumo mensal de saida de estoque.
+	 * Os parâmetros dataInicial e dataFinal são opcionais e definem o período para a consulta.
+	 * Se não informados, o período padrão é de um ano até a data atual.
+	 * 
+	 * @param dataInicial Data inicial para a consulta
+	 * @param dataFinal Data final para a consulta
+	 * @return Lista de resumo mensal de saida de estoque
+	 */
+	@GetMapping("/resumo-mensal")
+    @RolesAllowed({"admin", "manager"})
+    public ResponseEntity<List<ResumoMensalSaidaEstoqueDto>> getResumoMensal(
+            @RequestParam(required = false) String dataInicial,
+            @RequestParam(required = false) String dataFinal) {
+        
+        // Define valores padrão: período de um ano até a data atual
+        LocalDate fim = dataFinal != null && !dataFinal.trim().isEmpty() 
+                ? LocalDate.parse(dataFinal.trim()) 
+                : LocalDate.now();
+        LocalDate inicio = dataInicial != null && !dataInicial.trim().isEmpty() 
+                ? LocalDate.parse(dataInicial.trim()) 
+                : fim.minusYears(1);
+        
+        return new ResponseEntity<>(dashboardQueryService.buscarResumoMensal(inicio, fim), HttpStatus.OK);
+    }
 
 }

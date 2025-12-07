@@ -3,6 +3,8 @@ package io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.query;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,7 +14,9 @@ import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.Prod
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.ProdutosBaixaQuantidadeDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.ValorTotalEstoqueDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.mapper.IProdutoToProdutoBaixaQuantidadeDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.dto.ResumoMensalSaidaEstoqueDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.produto.repository.IProdutoRepository;
+import io.github.mateuussilvapb.app_jm_perfumaria.infra.saidaEstoque.repository.ISaidaEstoqueRepository;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -24,6 +28,7 @@ public class DashboardQueryService {
 
 	private final IProdutoRepository produtoRepository;
 	private final IProdutoToProdutoBaixaQuantidadeDTO produtoToProdutoBaixaQuantidadeDTO;
+	private final ISaidaEstoqueRepository saidaEstoqueRepository;
 
 	/**
 	 * Calcula o valor total do estoque e informações relacionadas
@@ -104,5 +109,53 @@ public class DashboardQueryService {
 				})
 				.toList();
 	}
+
+	/**
+	 * Busca o resumo mensal de saídas de estoque
+	 * Retorna dados de todos os meses no período especificado, preenchendo com zero os meses sem movimentação
+	 * 
+	 * @param inicio Data de início do período
+	 * @param fim Data de fim do período
+	 * @return Lista com resumo de todos os meses no período entre inicio e fim
+	 */
+	public List<ResumoMensalSaidaEstoqueDto> buscarResumoMensal(LocalDate inicio, LocalDate fim) {
+        List<Object[]> resultado = saidaEstoqueRepository.buscarResumoMensal(inicio, fim);
+        
+        var resumoPorMes = resultado.stream()
+            .map(row -> new ResumoMensalSaidaEstoqueDto(
+                ((Number) row[0]).intValue(),  // ano
+                ((Number) row[1]).intValue(),  // mes
+                ((Number) row[2]).longValue(), // quantidadeSaidas
+                ((Number) row[3]).longValue()  // quantidadeTotal
+            ))
+            .collect(Collectors.toMap(
+                dto -> dto.ano() + "-" + dto.mes(),
+                dto -> dto
+            ));
+        
+        YearMonth inicioYearMonth = YearMonth.from(inicio);
+        YearMonth fimYearMonth = YearMonth.from(fim);
+        
+        List<ResumoMensalSaidaEstoqueDto> resultadoFinal = new ArrayList<>();
+        YearMonth atual = inicioYearMonth;
+        
+		// Percorre todos os meses entre inicio e fim
+        while (!atual.isAfter(fimYearMonth)) {
+            int ano = atual.getYear();
+            int mes = atual.getMonthValue();
+            String chave = ano + "-" + mes;
+            
+            // Busca no mapa ou cria um DTO com zeros
+            ResumoMensalSaidaEstoqueDto dto = resumoPorMes.getOrDefault(
+                chave,
+                new ResumoMensalSaidaEstoqueDto(ano, mes, 0L, 0L)
+            );
+            
+            resultadoFinal.add(dto);
+            atual = atual.plusMonths(1);
+        }
+        
+        return resultadoFinal;
+    }
 
 }

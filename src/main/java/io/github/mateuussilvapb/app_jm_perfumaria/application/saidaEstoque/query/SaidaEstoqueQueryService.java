@@ -1,6 +1,11 @@
 package io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.query;
 
 import static io.github.mateuussilvapb.app_jm_perfumaria.util.ComparatorsUtil.ordenarPorDoisCriterios;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueFilterDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseDto;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.common.movimentacaoEstoque.dto.MovimentacaoEstoqueResponseListDto;
@@ -14,9 +19,6 @@ import io.github.mateuussilvapb.app_jm_perfumaria.domain.saidaEstoque.SaidaEstoq
 import io.github.mateuussilvapb.app_jm_perfumaria.infra.saidaEstoque.repository.ISaidaEstoqueRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @Transactional
