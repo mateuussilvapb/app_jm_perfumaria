@@ -93,7 +93,7 @@ public class DashboardQueryController {
                 : LocalDate.now();
         LocalDate inicio = dataInicial != null && !dataInicial.trim().isEmpty() 
                 ? LocalDate.parse(dataInicial.trim()) 
-                : fim.minusYears(1);
+                : fim.minusYears(1).plusMonths(1);
         
         return new ResponseEntity<>(dashboardQueryService.buscarResumoMensal(inicio, fim), HttpStatus.OK);
     }
