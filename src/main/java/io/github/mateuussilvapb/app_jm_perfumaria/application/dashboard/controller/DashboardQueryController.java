@@ -81,7 +81,7 @@ public class DashboardQueryController {
 	 * @param dataFinal Data final para a consulta
 	 * @return Lista de resumo mensal de saida de estoque
 	 */
-	@GetMapping("/resumo-mensal")
+	@GetMapping("/resumo-mensal-saida-estoque")
     @RolesAllowed({"admin", "manager"})
     public ResponseEntity<List<ResumoMensalSaidaEstoqueDto>> getResumoMensal(
             @RequestParam(required = false) String dataInicial,
