@@ -2,6 +2,8 @@ package io.github.mateuussilvapb.app_jm_perfumaria.auth.token;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.auth.dtos.TokenResponse;
 import io.github.mateuussilvapb.app_jm_perfumaria.auth.dtos.UserDTO;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class TokenService {
 
     private final WebClient webClient;
+
+    @Value("${uri_token_postweb_client}")
+    private String uriTokenPostWebClient;
 
     public TokenService(WebClient webClient) {
         this.webClient = webClient;
@@ -28,7 +33,7 @@ public class TokenService {
                 .with("grant_type", user.grantType());
 
         return webClient.post()
-                .uri("http://localhost:8080/realms/JMPERFUMARIA/protocol/openid-connect/token")
+                .uri(uriTokenPostWebClient)
                 .headers(httpHeaders -> httpHeaders.addAll(headers))
                 .body(formData)
                 .retrieve()
