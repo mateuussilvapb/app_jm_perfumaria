@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.MovimentacaoEstoqueQuantidadeItensDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.ProdutoSemMovimentacaoDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.ProdutosBaixaQuantidadeDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.ValorTotalEstoqueDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.query.DashboardQueryService;
-import io.github.mateuussilvapb.app_jm_perfumaria.application.saidaEstoque.dto.ResumoMensalSaidaEstoqueDto;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 
@@ -83,19 +83,11 @@ public class DashboardQueryController {
 	 */
 	@GetMapping("/resumo-mensal-saida-estoque")
     @RolesAllowed({"admin", "manager"})
-    public ResponseEntity<List<ResumoMensalSaidaEstoqueDto>> getResumoMensal(
+    public ResponseEntity<MovimentacaoEstoqueQuantidadeItensDTO> getResumoMensal(
             @RequestParam(required = false) String dataInicial,
             @RequestParam(required = false) String dataFinal) {
         
-        // Define valores padrão: período de um ano até a data atual
-        LocalDate fim = dataFinal != null && !dataFinal.trim().isEmpty() 
-                ? LocalDate.parse(dataFinal.trim()) 
-                : LocalDate.now();
-        LocalDate inicio = dataInicial != null && !dataInicial.trim().isEmpty() 
-                ? LocalDate.parse(dataInicial.trim()) 
-                : fim.minusYears(1).plusMonths(1);
-        
-        return new ResponseEntity<>(dashboardQueryService.buscarResumoMensal(inicio, fim), HttpStatus.OK);
+        return new ResponseEntity<>(dashboardQueryService.buscarResumoItensMovimentacaoEstoqueMensal(dataInicial, dataFinal), HttpStatus.OK);
     }
 
 }

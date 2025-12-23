@@ -40,4 +40,20 @@ public interface ISaidaEstoqueRepository
             @Param("inicio") LocalDate inicio,
             @Param("fim") LocalDate fim);
 
+    @Query("""
+                SELECT  YEAR(se.dataSaidaEstoque) AS ano,
+                        MONTH(se.dataSaidaEstoque) AS mes,
+                        COALESCE(SUM(pse.quantidade * pse.precoUnitario), 0) AS valorTotal
+                FROM SaidaEstoque se
+                LEFT JOIN se.saidasProdutos pse
+                WHERE se.dataSaidaEstoque BETWEEN :inicio AND :fim
+                AND se.situacao = 'CADASTRO_FINALIZADO'
+                AND se.status = 'ATIVO'
+                GROUP BY YEAR(se.dataSaidaEstoque), MONTH(se.dataSaidaEstoque)
+                ORDER BY ano, mes
+            """)
+    List<Object[]> buscarValorTotalMensal(
+            @Param("inicio") LocalDate inicio,
+            @Param("fim") LocalDate fim);
+
 }
