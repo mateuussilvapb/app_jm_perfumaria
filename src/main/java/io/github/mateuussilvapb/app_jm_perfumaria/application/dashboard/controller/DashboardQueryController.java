@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.MovimentacaoEstoqueQuantidadeItensDTO;
+import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.MovimentacaoEstoqueValorItensDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.ProdutoSemMovimentacaoDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.ProdutosBaixaQuantidadeDTO;
 import io.github.mateuussilvapb.app_jm_perfumaria.application.dashboard.dto.ValorTotalEstoqueDTO;
@@ -81,13 +82,31 @@ public class DashboardQueryController {
 	 * @param dataFinal Data final para a consulta
 	 * @return Lista de resumo mensal de saida de estoque
 	 */
-	@GetMapping("/resumo-mensal-saida-estoque")
+	@GetMapping("/resumo-mensal-movimentacao-estoque")
     @RolesAllowed({"admin", "manager"})
     public ResponseEntity<MovimentacaoEstoqueQuantidadeItensDTO> getResumoMensal(
             @RequestParam(required = false) String dataInicial,
             @RequestParam(required = false) String dataFinal) {
         
         return new ResponseEntity<>(dashboardQueryService.buscarResumoItensMovimentacaoEstoqueMensal(dataInicial, dataFinal), HttpStatus.OK);
+    }
+
+	/**
+	 * Endpoint para obter o valores mensais de movimentacao de estoque.
+	 * Os parâmetros dataInicial e dataFinal são opcionais e definem o período para a consulta.
+	 * Se não informados, o período padrão é de um ano até a data atual.
+	 * 
+	 * @param dataInicial Data inicial para a consulta
+	 * @param dataFinal Data final para a consulta
+	 * @return Lista de resumo valores mensais de movimentacao de estoque
+	 */
+	@GetMapping("/resumo-valores-movimentacao-estoque")
+    @RolesAllowed({"admin", "manager"})
+    public ResponseEntity<MovimentacaoEstoqueValorItensDTO> getValoresMensal(
+            @RequestParam(required = false) String dataInicial,
+            @RequestParam(required = false) String dataFinal) {
+
+        return new ResponseEntity<>(dashboardQueryService.buscarValorItensMovimentacaoEstoqueMensal(dataInicial, dataFinal), HttpStatus.OK);
     }
 
 }

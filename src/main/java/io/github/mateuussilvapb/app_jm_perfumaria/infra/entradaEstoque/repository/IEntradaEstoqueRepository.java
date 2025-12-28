@@ -37,4 +37,20 @@ public interface IEntradaEstoqueRepository extends JpaRepository<EntradaEstoque,
     List<Object[]> buscarResumoMensal(
             @Param("inicio") LocalDate inicio,
             @Param("fim") LocalDate fim);
+
+    @Query("""
+                SELECT  YEAR(se.dataEntradaEstoque) AS ano,
+                        MONTH(se.dataEntradaEstoque) AS mes,
+                        COALESCE(SUM(pse.quantidade * pse.precoUnitario), 0) AS valorTotal
+                FROM EntradaEstoque se
+                LEFT JOIN se.entradasProdutos pse
+                WHERE se.dataEntradaEstoque BETWEEN :inicio AND :fim
+                AND se.situacao = 'CADASTRO_FINALIZADO'
+                AND se.status = 'ATIVO'
+                GROUP BY YEAR(se.dataEntradaEstoque), MONTH(se.dataEntradaEstoque)
+                ORDER BY ano, mes
+            """)
+    List<Object[]> buscarValorTotalMensal(
+            @Param("inicio") LocalDate inicio,
+            @Param("fim") LocalDate fim);
 }
