@@ -153,7 +153,9 @@ public class DashboardQueryService {
 			.map(row -> new ValorMensalMovimentacaoEstoqueDto(
 				((Number) row[0]).intValue(),  // ano
 				((Number) row[1]).intValue(),  // mes
-				((Number) row[2]).longValue() // valorTotal
+				((Number) row[2]).longValue(), // valorTotal
+				((Number) row[3]).longValue(), // descontoTotal
+				((Number) row[4]).intValue()  // quantidadeTotal
 			))
 			.collect(Collectors.toMap(
 				dto -> dto.ano() + "-" + dto.mes(),
@@ -232,7 +234,7 @@ public class DashboardQueryService {
             // Busca no mapa ou cria um DTO com zeros
             ValorMensalMovimentacaoEstoqueDto dto = resumoPorMes.getOrDefault(
                 chave,
-                new ValorMensalMovimentacaoEstoqueDto(ano, mes, 0L)
+                new ValorMensalMovimentacaoEstoqueDto(ano, mes, 0L, 0L, 0)
             );
             
             resultadoFinal.add(dto);

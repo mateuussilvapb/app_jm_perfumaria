@@ -41,7 +41,9 @@ public interface IEntradaEstoqueRepository extends JpaRepository<EntradaEstoque,
     @Query("""
                 SELECT  YEAR(se.dataEntradaEstoque) AS ano,
                         MONTH(se.dataEntradaEstoque) AS mes,
-                        COALESCE(SUM(pse.quantidade * pse.precoUnitario), 0) AS valorTotal
+                        COALESCE(SUM(pse.quantidade * pse.precoUnitario), 0) AS valorTotal,
+                        COALESCE(SUM(pse.quantidade * pse.precoUnitario * pse.desconto), 0) AS descontoTotal,
+                        COALESCE(SUM(pse.quantidade), 0) AS quantidadeTotal
                 FROM EntradaEstoque se
                 LEFT JOIN se.entradasProdutos pse
                 WHERE se.dataEntradaEstoque BETWEEN :inicio AND :fim

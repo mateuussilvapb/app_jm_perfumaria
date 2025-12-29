@@ -43,7 +43,9 @@ public interface ISaidaEstoqueRepository
     @Query("""
                 SELECT  YEAR(se.dataSaidaEstoque) AS ano,
                         MONTH(se.dataSaidaEstoque) AS mes,
-                        COALESCE(SUM(pse.quantidade * pse.precoUnitario), 0) AS valorTotal
+                        COALESCE(SUM(pse.quantidade * pse.precoUnitario), 0) AS valorTotal,
+                        COALESCE(SUM(pse.quantidade * pse.precoUnitario * pse.desconto), 0) AS descontoTotal,
+                        COALESCE(SUM(pse.quantidade), 0) AS quantidadeTotal
                 FROM SaidaEstoque se
                 LEFT JOIN se.saidasProdutos pse
                 WHERE se.dataSaidaEstoque BETWEEN :inicio AND :fim
